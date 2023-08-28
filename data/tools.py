@@ -1,3 +1,4 @@
+import enum
 import os
 import re
 from datetime import datetime
@@ -7,6 +8,11 @@ import pandas as pd
 
 import data.consts as consts
 from data.exceptions import CompanyNotFound
+
+
+class Modulos(enum.Enum):
+    FOLHA = consts.FOLHA_FOLDER_PATH
+    ADIANT_FOLHA = consts.ADIANT_FOLHA_FOLDER_PATH
 
 
 def generate_folder_path(company_name, company_file, specific_month=False, month=None):
@@ -127,6 +133,8 @@ def __rename_file(filename):
         new_name = "Extrato.pdf"
     elif "Férias" in filename:
         new_name = "Programação de férias - 0001.pdf"
+    elif "folha" or "Folha" in filename:
+        new_name = "Folha de Pagamento - 0001.pdf"
     elif "Recibo" in filename:
         new_name = "Recibo de Pagamento - 0001.pdf"
     else:
