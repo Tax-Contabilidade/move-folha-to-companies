@@ -1,3 +1,4 @@
+import argparse
 import enum
 import os
 import re
@@ -13,6 +14,21 @@ from data.exceptions import CompanyNotFound
 class Modulos(enum.Enum):
     FOLHA = consts.FOLHA_FOLDER_PATH
     ADIANT_FOLHA = consts.ADIANT_FOLHA_FOLDER_PATH
+
+
+def get_args_from_command_line():
+    parser = argparse.ArgumentParser(
+        description="Um script para processar e salvar os arquivos de Folha e Adiantamento de Folha nas empresas corretamente"
+    )
+
+    # Adicione os argumentos que você deseja aceitar
+    parser.add_argument("-f", "--folha", action="store_true", help="Processar a folha")
+    parser.add_argument(
+        "-a", "--adiant", action="store_true", help="Processar o adiantamento"
+    )
+
+    # Parse os argumentos
+    return parser.parse_args()
 
 
 def generate_folder_path(company_name, company_file, specific_month=False, month=None):

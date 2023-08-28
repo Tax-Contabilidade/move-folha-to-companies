@@ -126,7 +126,7 @@ def mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
         stdout, stderr = process.communicate(input=f"{password}\n")
 
         if process.returncode == 0:
-            print(f"\nSSHFS montado com sucesso em:\n{local_path}\n")
+            print(f"\nSSHFS montado com sucesso em: {local_path}\n")
         else:
             print("\nErro ao montar SSHFS: ")
             raise Exception(stderr)
@@ -146,4 +146,4 @@ def umount_server(directory_path=LOCAL_SERVER_PATH):
         print("\nNova tentativa em 5 segundos...")
         time.sleep(5)
         subprocess.run(["umount", directory_path], check=True)
-        print(f"\nDiretário {directory_path} desmontado com sucesso.")
+        print(f"\nDiretório {directory_path} desmontado com sucesso.")

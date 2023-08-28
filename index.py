@@ -49,4 +49,12 @@ def main(companies, success_list, error_list, modulo: tools.Modulos):
 
 
 if __name__ == "__main__":
+    args = tools.get_args_from_command_line()
+    if args.adiant:
+        print("Executando módulo ADIANTAMENTO DE FOLHA...")
+        main(
+            companies, companies_moved, companies_not_found, tools.Modulos.ADIANT_FOLHA
+        )
+
+    print("Executando módulo FOLHA DE PAGAMENTO...")
     main(companies, companies_moved, companies_not_found, tools.Modulos.FOLHA)
