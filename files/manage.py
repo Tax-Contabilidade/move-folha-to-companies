@@ -232,7 +232,7 @@ def check_for_updates():
                     "Há modificações salvas em stash. use 'git stash pop' para restaurá-las.\n"
                 )
             else:
-                print("Atualização concluída.")
+                print("Atualização concluída.\n")
 
     except subprocess.CalledProcessError as e:
         time.sleep(2)
