@@ -2,6 +2,7 @@ import argparse
 import enum
 import os
 import re
+import sys
 from datetime import datetime
 from typing import Union
 
@@ -11,9 +12,9 @@ import data.consts as consts
 from data.exceptions import CompanyNotFound
 
 
-class Modulos(enum.Enum):
+class modulos(enum.Enum):
     FOLHA = consts.FOLHA_FOLDER_PATH
-    ADIANT_FOLHA = consts.ADIANT_FOLHA_FOLDER_PATH
+    ADIANTAMENTO_FOLHA = consts.ADIANT_FOLHA_FOLDER_PATH
 
 
 def get_args_from_command_line():
@@ -24,11 +25,24 @@ def get_args_from_command_line():
     # Adicione os argumentos que você deseja aceitar
     parser.add_argument("-f", "--folha", action="store_true", help="Processar a folha")
     parser.add_argument(
+        "-u",
+        "--no-umount",
+        action="store_true",
+        help="Não desmonta o servidor após conclusão",
+    )
+    parser.add_argument(
         "-a", "--adiant", action="store_true", help="Processar o adiantamento"
     )
 
-    # Parse os argumentos
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    if args.f and args.a:
+        print(
+            "\nErro: Não use os flags -f e -a juntas. Ainda não há suporte para a execução dos módulos FOLHA e ADIANTAMENTO_FOLHA simultaneamente"
+        )
+        sys.exit(1)
+
+    return args
 
 
 def generate_folder_path(company_name, company_file, specific_month=False, month=None):

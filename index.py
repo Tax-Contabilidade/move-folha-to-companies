@@ -23,7 +23,7 @@ def config_server_and_backup(type_of_event):
     backup_files(type_of_event)
 
 
-def main(companies, success_list, error_list, modulo: tools.Modulos):
+def main(companies, success_list, error_list, modulo: tools.modulos, umount=True):
     config_server_and_backup(
         modulo.value
     )  # FOLHA_FOLDER_PATH or ADIANT_FOLHA_FOLDER_PATH
@@ -45,16 +45,32 @@ def main(companies, success_list, error_list, modulo: tools.Modulos):
     generate_report_file(success_list, "movidos", json_file=True)
     generate_report_file(error_list, "erros", json_file=False)
 
-    umount_server()
+    if umount:
+        umount_server()
+
+
+def execute_module(**kwargs):
+    print(f"Executando módulo {kwargs['modulo']}...")
+    main(**kwargs)
 
 
 if __name__ == "__main__":
     args = tools.get_args_from_command_line()
-    if args.adiant:
-        print("Executando módulo ADIANTAMENTO DE FOLHA...")
-        main(
-            companies, companies_moved, companies_not_found, tools.Modulos.ADIANT_FOLHA
-        )
+    umount_flag = not args.no_umount
 
-    print("Executando módulo FOLHA DE PAGAMENTO...")
-    main(companies, companies_moved, companies_not_found, tools.Modulos.FOLHA)
+    if args.adiant:
+        execute_module(
+            umount=umount_flag,
+            companies=companies,
+            success_list=companies_moved,
+            error_list=companies_not_found,
+            modulo=tools.modulos.ADIANTAMENTO_FOLHA,
+        )
+    else:
+        execute_module(
+            umount=umount_flag,
+            companies=companies,
+            success_list=companies_moved,
+            error_list=companies_not_found,
+            modulo=tools.modulos.FOLHA,
+        )
