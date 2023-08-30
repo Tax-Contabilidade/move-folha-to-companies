@@ -171,6 +171,21 @@ def __manage_last_stash():
         raise Exception("Erro ao executar o comando git.\nErro: " + str(e))
 
 
+def __execute_pull_from_repo(
+    origin="origin", branch="main", output=False, stdOut=False
+):
+    if stdOut:
+        return subprocess.run(
+            ["git", "pull", origin, branch], stderr=subprocess.PIPE, text=True
+        )
+    elif output:
+        return subprocess.call(["git", "pull", origin, branch])
+    else:
+        raise Exception(
+            "Informe se a saída do pull será impressa em tela ou string no return"
+        )
+
+
 def check_for_updates():
     # Configuração global para rebase
     subprocess.call(["git", "config", "--global", "pull.rebase", "true"])
@@ -203,12 +218,14 @@ def check_for_updates():
                 "O repositório local não está atualizado com o remoto. Executando pull from origin\n"
             )
             time.sleep(2)
-            output = subprocess.run(["git", "pull"], stderr=subprocess.PIPE, text=True)
+            output = __execute_pull_from_repo(stdOut=True)
             if (
                 "error: cannot pull with rebase: You have unstaged changes."
                 in output.stderr
             ):
                 subprocess.call(["git", "stash", "save", "app auto-stash"])
+                time.sleep(2)
+                __execute_pull_from_repo(output=True)
                 time.sleep(2)
                 print("\nAtualização concluída.")
                 print(
