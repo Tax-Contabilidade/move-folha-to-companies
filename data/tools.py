@@ -161,7 +161,7 @@ def __extract_cnpj_from_filename(df, filename):
         raise CompanyNotFound("Company not found")
 
 
-def get_company_cod_by_filename(company_name: str):
+def get_company_cod_by_filename(df,company_name: str):
     # Definindo o padrão de regex para capturar a sequência de números antes do hífen
     pattern = r"(\d+)-"
 
