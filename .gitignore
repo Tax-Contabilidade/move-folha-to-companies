@@ -1,1 +1,36 @@
+# Arquivos e pastas específicos para Python
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ambientes virtuais (por exemplo, virtualenv, pipenv, conda)
+venv/
+env/
+.venv/
+.vscode/
+
+# Arquivos de configuração
+*.env
+*.sqlite3
+
+# Logs e saídas de depuração
+*.log
+debug.log
+
+# Arquivos de saída e artefatos gerados
+dist/
+build/
+*.egg-info/
+*.egg
+*.eggs/
+*.egg-info/
+
+# Cache de pacotes gerados pelo pip
+pip-wheel-metadata/
+*.whl
+# PASTAS DO PROJETO
+FOLHAS/
+
+.~lock.*
+.vscode/
