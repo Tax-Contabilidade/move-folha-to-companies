@@ -41,6 +41,8 @@ def main(companies, success_list, error_list, modulo: tools.modulos, umount=True
                 text = "{}\n{}".format((company_name, file_name), e)
                 error_list.append(text)
 
+    # Imprimir o separador no final
+    print("/" * 10 + "*" * 30 + "/" * 10)
     generate_report_file(success_list, "movidos", json_file=True)
     generate_report_file(error_list, "erros", json_file=False)
 

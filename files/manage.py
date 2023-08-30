@@ -43,7 +43,7 @@ def backup_files(type_of_event):
             print(f"\nCopiado arquivo {origin} para {dest}\n")
 
     # Imprimir o separador no final
-    print("/" * 40 + "*" * 5 + "/" * 40)
+    print("/" * 10 + "*" * 30 + "/" * 10)
 
 
 def generate_report_file(list_object: list, name, json_file=False):
