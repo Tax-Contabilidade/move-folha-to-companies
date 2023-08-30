@@ -1,5 +1,6 @@
 # Arquivos e pastas específicos para Python
 __pycache__/
+*/__pycache__/
 *.py[cod]
 *.pyo
 *.pyd
