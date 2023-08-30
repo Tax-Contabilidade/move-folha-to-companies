@@ -20,7 +20,7 @@ companies_moved = []
 
 def config_server_and_backup(type_of_event):
     mount_server()
-    backup_files(type_of_event)
+    # backup_files(type_of_event)
 
 
 def main(companies, success_list, error_list, modulo: tools.Modulos):
@@ -31,7 +31,7 @@ def main(companies, success_list, error_list, modulo: tools.Modulos):
     for file_name in os.listdir(modulo.value):
         complete_path = os.path.join(modulo.value, file_name)
         if os.path.isfile(complete_path):
-            company_cod = tools.get_company_cod_by_filename(file_name)
+            company_cod = tools.get_company_cod_by_filename(companies,file_name)
             company_name = tools.get_company_name_by_cod(companies, company_cod)
 
             try:

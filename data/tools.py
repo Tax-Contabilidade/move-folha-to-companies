@@ -50,8 +50,14 @@ def generate_folder_path(company_name, company_file, specific_month=False, month
         )
 
     # Padrão de regex para capturar o mês e o ano
-    pattern = r"(\d{2})(\d{4}).pdf"
-    match = re.search(pattern, company_file)
+    if company_file[:13] == 'GuiaPagamento':
+        pattern = r'_(\d{2})(\d{4})_'
+        match = re.search(pattern, company_file)
+
+    else:
+        
+        pattern = r"(\d{2})(\d{4}).pdf"
+        match = re.search(pattern, company_file)
     if match:
         month = int(match.group(1))
         year = int(match.group(2))
@@ -111,7 +117,7 @@ def __get_dataframe(excel_file_path):
 
 def __get_companies_list(df):
     return [
-        {"name": reg["Caminho"].split("\\")[-1], "cod": reg["Cod"]}
+        {"name": reg["Caminho"].split("\\")[-1], "cod": reg["Cod"], "cnpj": reg["Cnpj"]}
         for index, reg in df.iterrows()
     ]
 
@@ -130,29 +136,39 @@ def get_company_name_by_cod(df, cod: Union[str, int]):
     else:
         raise CompanyNotFound("Company not found")
 
-
-def get_company_cod_by_filename(company_name: str):
+def extract_cnpj_from_filename(df,filename):
+    cnpj_pattern = r'\d{14}'
+    match = re.search(cnpj_pattern, filename)
+    if match:
+        cnpj = match.group()
+        filtered_line = df.loc[df["cnpj"] == cnpj.lstrip('0'), "cod"].values
+        if len(filtered_line) > 0:
+            return filtered_line[0]
+    else:
+        raise CompanyNotFound("Company not found")
+    
+def get_company_cod_by_filename(df,company_name: str):
     # Definindo o padrão de regex para capturar a sequência de números antes do hífen
     pattern = r"(\d+)-"
-
     # Encontrando o padrão na string
     cod_found = re.search(pattern, company_name)
-
     if cod_found:
         return cod_found.group(1)
-
+    elif company_name[:13] == 'GuiaPagamento':
+        return extract_cnpj_from_filename(df,company_name)
     raise Exception("Pattern not found on this file")
-
 
 def __rename_file(filename):
     if "Extrato" in filename:
         new_name = "Extrato.pdf"
     elif "Férias" in filename:
         new_name = "Programação de férias - 0001.pdf"
-    elif "folha" or "Folha" in filename:
+    elif "folha" in filename or "Folha" in filename:
         new_name = "Folha de Pagamento - 0001.pdf"
     elif "Recibo" in filename:
         new_name = "Recibo de Pagamento - 0001.pdf"
+    elif filename[:13] == 'GuiaPagamento':
+        new_name = "DCTFWeb/Guia de Pagamento - 0001.pdf"
     else:
         new_name = filename
 
