@@ -130,28 +130,42 @@ def __manage_last_stash():
                 stash_details = subprocess.check_output(
                     ["git", "stash", "show", "-s", stash_name]
                 ).decode()
-                stash_date_str = stash_details.split("\n")[0].split(": ")[1].strip()
-                stash_date = datetime.strptime(
-                    stash_date_str, "%a %b %d %H:%M:%S %Y %z"
-                )
 
-                # Calcular a diferença de tempo
-                time_difference = datetime.now() - stash_date
+                stash_lines = stash_details.split("\n")
+                if len(stash_lines) > 0:
+                    stash_date_line = stash_lines[0]
+                    stash_date_info = stash_date_line.split(": ")
+                    if len(stash_date_info) > 1:
+                        stash_date_str = stash_date_info[1].strip()
+                        stash_date = datetime.strptime(
+                            stash_date_str, "%a %b %d %H:%M:%S %Y %z"
+                        )
 
-                # Definir um limite de 1 dia
-                one_day = timedelta(days=1)
+                        # Calcular a diferença de tempo
+                        time_difference = datetime.now() - stash_date
 
-                if time_difference > one_day:
-                    print("Removendo stash mais antigo:", stash_name)
-                    subprocess.call(["git", "stash", "drop", stash_name])
+                        # Definir um limite de 1 dia
+                        one_day = timedelta(days=1)
+
+                        if time_difference > one_day:
+                            print("Removendo stash mais antigo:", stash_name)
+                            subprocess.call(["git", "stash", "drop", stash_name])
+                        else:
+                            print(
+                                f"Modificações em stash encontradas ({stash_message})."
+                                " Você pode recuperá-las usando 'git stash apply'."
+                                " A atualização prosseguirá normalmente.\n"
+                            )
+                    else:
+                        print(
+                            "Não foi possível obter informações sobre a data do stash."
+                        )
                 else:
-                    print(
-                        f"Modificações em stash encontradas ({stash_message})."
-                        " Você pode recuperá-las usando 'git stash apply'."
-                        " A atualização prosseguirá normalmente.\n"
-                    )
+                    print("Não foi possível obter informações sobre o stash.")
             else:
                 print("O último stash não possui um nome válido.\n")
+        else:
+            print("Não há stashes disponíveis.\n")
 
     except subprocess.CalledProcessError as e:
         raise Exception("Erro ao executar o comando git.\nErro: " + str(e))
