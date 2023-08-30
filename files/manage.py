@@ -158,10 +158,10 @@ def __manage_last_stash():
                             )
                     else:
                         print(
-                            "Não foi possível obter informações sobre a data do stash."
+                            "Não foi possível obter informações sobre a data do stash.\n"
                         )
                 else:
-                    print("Não foi possível obter informações sobre o stash.")
+                    print("Não foi possível obter informações sobre o stash.\n")
             else:
                 print("O último stash não possui um nome válido.\n")
         else:
