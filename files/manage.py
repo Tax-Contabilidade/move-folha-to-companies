@@ -26,7 +26,7 @@ def move_file(company_name, file_name, complete_path):
 
 
 def backup_files(type_of_event):
-    path_exists(BACKUP_PATH)
+    __path_exists(BACKUP_PATH)
 
     for item in os.listdir(type_of_event):
         origin = os.path.join(type_of_event, item)
@@ -55,7 +55,7 @@ def generate_report_file(list_object: list, name, json_file=False):
             json.dump(list_object, file)
 
 
-def path_exists(path):
+def __path_exists(path):
     # Verificar se o diretório existe
     if not os.path.exists(path):
         # Se não existir, criar o diretório
@@ -104,8 +104,44 @@ def __install_sshfs():
         sys.exit(1)
 
 
+def check_for_updates():
+    print("Verificando se o repositário local está atualizado com o remoto...")
+    try:
+        # Obtém a saída do comando 'git rev-parse HEAD', que retorna o hash do último commit no repositório local
+        local_hash = (
+            subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+        )
+
+        # Obtém a saída do comando 'git ls-remote origin -h refs/heads/main', que retorna o hash do último commit no repositório remoto
+        remote_hash = (
+            subprocess.check_output(
+                ["git", "ls-remote", "origin", "-h", "refs/heads/main"]
+            )
+            .decode()
+            .split()[0]
+        )
+
+        # Compara os hashes dos commits locais e remotos
+        if local_hash == remote_hash:
+            print(
+                "O repositório local está atualizado com o remoto. Nenhuma ação é necessária.\n"
+            )
+            time.sleep(2)
+        else:
+            print(
+                "O repositório local não está atualizado com o remoto. Executando pull from origin"
+            )
+            time.sleep(2)
+            subprocess.call(["git", "pull", "origin", "main"])
+            time.sleep(2)
+            print("\nAtualização concluída.\n")
+    except subprocess.CalledProcessError as e:
+        time.sleep(2)
+        raise Exception("Erro ao executar o comando git.\nErro: " + str(e))
+
+
 def mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
-    path_exists(local_path)
+    __path_exists(local_path)
     if not __is_server_mounted(local_path):
         if not __is_tool_available("sshfs"):
             __install_sshfs()
@@ -142,8 +178,8 @@ def umount_server(directory_path=LOCAL_SERVER_PATH):
         subprocess.run(["fusermount", "-u", directory_path], check=True)
         print(f"\nDiretório {directory_path} desmontado com sucesso.")
     except subprocess.CalledProcessError:
-        print(f"\nErro ao desmontar o diretório {directory_path}.")
-        print("\nNova tentativa em 5 segundos...")
+        # print(f"\nErro ao desmontar o diretório {directory_path}.")
+        # print("\nNova tentativa em 5 segundos...")
         time.sleep(5)
         subprocess.run(["umount", directory_path], check=True)
         print(f"\nDiretório {directory_path} desmontado com sucesso.")

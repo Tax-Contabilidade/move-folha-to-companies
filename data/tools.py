@@ -36,7 +36,7 @@ def get_args_from_command_line():
 
     args = parser.parse_args()
 
-    if args.f and args.a:
+    if args.folha and args.adiant:
         print(
             "\nErro: Não use os flags -f e -a juntas. Ainda não há suporte para a execução dos módulos FOLHA e ADIANTAMENTO_FOLHA simultaneamente"
         )
@@ -158,12 +158,21 @@ def get_company_cod_by_filename(company_name: str):
     raise Exception("Pattern not found on this file")
 
 
+def __parse_date(date_str):
+    year = date_str[-4:]
+    month = date_str[:2]
+    return f"{month} - {year}"
+
+
 def __rename_file(filename):
     if "Extrato" in filename:
         new_name = "Extrato.pdf"
-    elif "Férias" in filename:
+    elif any(name in filename for name in ["DAE", "Dae"]):
+        match = re.search(r"(\d{6})", filename)
+        new_name = "DAE - {}.pdf".format(__parse_date(match.group(1)))
+    elif any(name in filename for name in ["Férias", "Ferias", "ferias"]):
         new_name = "Programação de férias - 0001.pdf"
-    elif "folha" or "Folha" in filename:
+    elif any(name in filename for name in ["Folha", "folha"]):
         new_name = "Folha de Pagamento - 0001.pdf"
     elif "Recibo" in filename:
         new_name = "Recibo de Pagamento - 0001.pdf"

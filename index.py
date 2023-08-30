@@ -6,6 +6,7 @@ from data.consts import *
 from data.exceptions import CompanyNotFound, FileNotFound
 from files.manage import (
     backup_files,
+    check_for_updates,
     generate_report_file,
     mount_server,
     move_file,
@@ -24,9 +25,7 @@ def config_server_and_backup(type_of_event):
 
 
 def main(companies, success_list, error_list, modulo: tools.modulos, umount=True):
-    config_server_and_backup(
-        modulo.value
-    )  # FOLHA_FOLDER_PATH or ADIANT_FOLHA_FOLDER_PATH
+    config_server_and_backup(modulo.value)
 
     for file_name in os.listdir(modulo.value):
         complete_path = os.path.join(modulo.value, file_name)
@@ -50,6 +49,8 @@ def main(companies, success_list, error_list, modulo: tools.modulos, umount=True
 
 
 def execute_module(**kwargs):
+    check_for_updates()
+
     print(f"Executando módulo {kwargs['modulo']}...")
     main(**kwargs)
 
