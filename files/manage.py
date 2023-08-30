@@ -189,9 +189,7 @@ def check_for_updates():
                 "O repositório local não está atualizado com o remoto. Executando pull from origin\n"
             )
             time.sleep(2)
-            output = subprocess.run(
-                ["git", "pull", "origin", "main"], stderr=subprocess.PIPE, text=True
-            )
+            output = subprocess.run(["git", "pull"], stderr=subprocess.PIPE, text=True)
             if (
                 "error: cannot pull with rebase: You have unstaged changes."
                 in output.stderr
