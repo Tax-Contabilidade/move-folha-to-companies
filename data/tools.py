@@ -149,7 +149,7 @@ def get_company_name_by_cod(df, cod: Union[str, int]):
         raise CompanyNotFound("Company not found")
 
 
-def extract_cnpj_from_filename(df, filename):
+def __extract_cnpj_from_filename(df, filename):
     cnpj_pattern = r"\d{14}"
     match = re.search(cnpj_pattern, filename)
     if match:
@@ -171,7 +171,7 @@ def get_company_cod_by_filename(company_name: str):
     if cod_found:
         return cod_found.group(1)
     elif company_name[:13] == "GuiaPagamento":
-        return extract_cnpj_from_filename(df, company_name)
+        return __extract_cnpj_from_filename(df, company_name)
 
     raise Exception("Pattern not found on this file")
 

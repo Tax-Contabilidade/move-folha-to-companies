@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import time
+from datetime import timedelta
 
 from data import tools
 from data.consts import *
@@ -104,7 +105,63 @@ def __install_sshfs():
         sys.exit(1)
 
 
+# Função para verificar e gerenciar o último stash
+def __manage_last_stash():
+    try:
+        # Verificar se há stashes
+        stash_list = (
+            subprocess.check_output(["git", "stash", "list"])
+            .decode()
+            .strip()
+            .split("\n")
+        )
+
+        if stash_list:
+            last_stash_entry = stash_list[0]
+            stash_info = last_stash_entry.split(": ")
+            stash_name = stash_info[0]
+            stash_message = (
+                stash_info[1] if len(stash_info) > 1 else "Mensagem não disponível"
+            )
+
+            # Verificar se o stash possui nome válido
+            if stash_name:
+                # Obter informações detalhadas sobre o stash
+                stash_details = subprocess.check_output(
+                    ["git", "stash", "show", "-s", stash_name]
+                ).decode()
+                stash_date_str = stash_details.split("\n")[0].split(": ")[1].strip()
+                stash_date = datetime.strptime(
+                    stash_date_str, "%a %b %d %H:%M:%S %Y %z"
+                )
+
+                # Calcular a diferença de tempo
+                time_difference = datetime.now() - stash_date
+
+                # Definir um limite de 1 dia
+                one_day = timedelta(days=1)
+
+                if time_difference > one_day:
+                    print("Removendo stash mais antigo:", stash_name)
+                    subprocess.call(["git", "stash", "drop", stash_name])
+                else:
+                    print(
+                        f"Modificações em stash encontradas ({stash_message})."
+                        " Você pode recuperá-las usando 'git stash apply'."
+                        " A atualização prosseguirá normalmente.\n"
+                    )
+            else:
+                print("O último stash não possui um nome válido.\n")
+
+    except subprocess.CalledProcessError as e:
+        raise Exception("Erro ao executar o comando git.\nErro: " + str(e))
+
+
 def check_for_updates():
+    # Configuração global para rebase
+    subprocess.call(["git", "config", "--global", "pull.rebase", "true"])
+    __manage_last_stash()
+
     print("Verificando se o repositário local está atualizado com o remoto...")
     try:
         # Obtém a saída do comando 'git rev-parse HEAD', que retorna o hash do último commit no repositório local
@@ -129,12 +186,22 @@ def check_for_updates():
             time.sleep(2)
         else:
             print(
-                "O repositório local não está atualizado com o remoto. Executando pull from origin"
+                "O repositório local não está atualizado com o remoto. Executando pull from origin\n"
             )
             time.sleep(2)
-            subprocess.call(["git", "pull", "origin", "main"])
-            time.sleep(2)
-            print("\nAtualização concluída.\n")
+            output = subprocess.run(
+                ["git", "pull", "origin", "main"], stderr=subprocess.PIPE, text=True
+            )
+            if (
+                "error: cannot pull with rebase: You have unstaged changes."
+                in output.stderr
+            ):
+                subprocess.call(["git", "stash", "save", "app auto-stash"])
+                time.sleep(2)
+                print("\nAtualização concluída.\n")
+            else:
+                print("Atualização concluída.")
+
     except subprocess.CalledProcessError as e:
         time.sleep(2)
         raise Exception("Erro ao executar o comando git.\nErro: " + str(e))
