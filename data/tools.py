@@ -18,73 +18,6 @@ class modulos(enum.Enum):
     ADIANTAMENTO_FOLHA = consts.ADIANT_FOLHA_FOLDER_PATH
 
 
-def get_args_from_command_line():
-    parser = argparse.ArgumentParser(
-        description="Um script para processar e salvar os arquivos de Folha e Adiantamento de Folha nas empresas corretamente"
-    )
-
-    # Adicione os argumentos que você deseja aceitar
-    parser.add_argument("-f", "--folha", action="store_true", help="Processar a folha")
-    parser.add_argument(
-        "-u",
-        "--no-umount",
-        action="store_true",
-        help="Não desmonta o servidor após conclusão",
-    )
-    parser.add_argument(
-        "-a", "--adiant", action="store_true", help="Processar o adiantamento"
-    )
-
-    args = parser.parse_args()
-
-    if args.folha and args.adiant:
-        print(
-            "\nErro: Não use os flags -f e -a juntas. Ainda não há suporte para a execução dos módulos FOLHA e ADIANTAMENTO_FOLHA simultaneamente"
-        )
-        sys.exit(1)
-
-    return args
-
-
-def generate_folder_path(company_name, company_file, specific_month=False, month=None):
-    if specific_month:
-        if not month:
-            raise Exception("Month not informed")
-
-        if month == datetime.now().month:
-            date = consts.CURRENT_DATE_SUFIX_PATH
-        else:
-            date = datetime(year=datetime.now().year, month=month, day=1).strftime(
-                "%Y/%m - %B"
-            )
-
-        return "{}/{}/{}".format(
-            consts.COMPANIES_PATH,
-            company_name,
-            consts.DESTINATION_SUFIX_PATH.replace("{DATE}", date),
-        )
-
-    # Padrão de regex para capturar o mês e o ano
-    if "GuiaPagamento" in company_file:
-        pattern = r"_(\d{2})(\d{4})_"
-    else:
-        pattern = r"(\d{2})(\d{4}).pdf"
-
-    match = re.search(pattern, company_file)
-    if match:
-        month = int(match.group(1))
-        year = int(match.group(2))
-        date = datetime(year, month, 1).strftime("%Y/%m - %B")
-    else:
-        raise Exception("Pattern not found on this file")
-
-    return "{}/{}/{}".format(
-        consts.COMPANIES_PATH,
-        company_name,
-        consts.DESTINATION_SUFIX_PATH.replace("{DATE}", date),
-    )
-
-
 def __get_dataframe(excel_file_path):
     df = pd.read_excel(excel_file_path)
     df.drop(
@@ -135,24 +68,6 @@ def __get_companies_list(df):
     ]
 
 
-def get_companies_list(
-    excel_file_path="{}".format(
-        os.path.join(Path(__file__).parent, "api/empresas.xlsx")
-    ),
-) -> pd.DataFrame:
-    df = __get_dataframe(excel_file_path)
-    return df.from_dict(__get_companies_list(df))
-
-
-def get_company_name_by_cod(df, cod: Union[str, int]):
-    filtered_line = df.loc[df["cod"] == cod, "name"].values
-
-    if len(filtered_line) > 0:
-        return filtered_line[0]
-    else:
-        raise CompanyNotFound("Company not found")
-
-
 def __extract_cnpj_from_filename(df, filename):
     cnpj_pattern = r"\d{14}"
     match = re.search(cnpj_pattern, filename)
@@ -163,21 +78,6 @@ def __extract_cnpj_from_filename(df, filename):
             return filtered_line[0]
     else:
         raise CompanyNotFound("Company not found")
-
-
-def get_company_cod_by_filename(df, company_name: str):
-    # Definindo o padrão de regex para capturar a sequência de números antes do hífen
-    pattern = r"(\d+)-"
-
-    # Encontrando o padrão na string
-    cod_found = re.search(pattern, company_name)
-
-    if cod_found:
-        return cod_found.group(1)
-    elif company_name[:13] == "GuiaPagamento":
-        return __extract_cnpj_from_filename(df, company_name)
-
-    raise Exception("Pattern not found on this file")
 
 
 def __parse_date(date_str):
@@ -210,3 +110,90 @@ def generate_new_file_suffix(destination_path, file_name):
     new_file_name = __rename_file(file_name)
 
     return os.path.join(destination_path, new_file_name)
+
+
+def path_exists(path):
+    # Verificar se o diretório existe
+    if not os.path.exists(path):
+        # Se não existir, criar o diretório
+        os.makedirs(path)
+        print(f'Diretório "{path}" criado com sucesso.\n')
+
+
+def get_companies_list(
+    excel_file_path="{}".format(
+        os.path.join(Path(__file__).parent, "api/empresas.xlsx")
+    ),
+) -> pd.DataFrame:
+    df = __get_dataframe(excel_file_path)
+    return df.from_dict(__get_companies_list(df))
+
+
+def get_company_cod_by_filename(df, company_name: str):
+    # Definindo o padrão de regex para capturar a sequência de números antes do hífen
+    pattern = r"(\d+)-"
+
+    # Encontrando o padrão na string
+    cod_found = re.search(pattern, company_name)
+
+    if cod_found:
+        return cod_found.group(1)
+    elif company_name[:13] == "GuiaPagamento":
+        return __extract_cnpj_from_filename(df, company_name)
+
+    raise Exception("Pattern not found on this file")
+
+
+def get_company_name_by_cod(df, cod: Union[str, int]):
+    filtered_line = df.loc[df["cod"] == cod, "name"].values
+
+    if len(filtered_line) > 0:
+        return filtered_line[0]
+    else:
+        raise CompanyNotFound("Company not found")
+
+
+def generate_folder_path(company_name, company_file, specific_month=False, month=None):
+    is_guia_pagamento = "GuiaPagamento" in company_file
+    if specific_month:
+        if not month:
+            raise Exception("Month not informed")
+
+        if month == datetime.now().month:
+            date = consts.CURRENT_DATE_SUFIX_PATH
+        else:
+            date = datetime(year=datetime.now().year, month=month, day=1).strftime(
+                "%Y/%m - %B"
+            )
+
+        return "{}/{}/{}".format(
+            consts.COMPANIES_PATH,
+            company_name,
+            consts.DESTINATION_SUFIX_PATH.replace("{DATE}", date),
+        )
+
+    # Padrão de regex para capturar o mês e o ano
+    if is_guia_pagamento:
+        pattern = r"_(\d{2})(\d{4})_"
+        output_path = "{}/{}/{}/DCTFWeb".format(
+            consts.COMPANIES_PATH,
+            company_name,
+            consts.DESTINATION_SUFIX_PATH,
+        )
+    else:
+        pattern = r"(\d{2})(\d{4}).pdf"
+        output_path = "{}/{}/{}".format(
+            consts.COMPANIES_PATH,
+            company_name,
+            consts.DESTINATION_SUFIX_PATH,
+        )
+
+    match = re.search(pattern, company_file)
+    if match:
+        month = int(match.group(1))
+        year = int(match.group(2))
+        date = datetime(year, month, 1).strftime("%Y/%m - %B")
+    else:
+        raise Exception("Pattern not found on this file")
+
+    return output_path.replace("{DATE}", date)
