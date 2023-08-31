@@ -4,6 +4,7 @@ import os
 import re
 import sys
 from datetime import datetime
+from pathlib import Path
 from typing import Union
 
 import pandas as pd
@@ -64,7 +65,7 @@ def generate_folder_path(company_name, company_file, specific_month=False, month
         )
 
     # Padrão de regex para capturar o mês e o ano
-    if company_file[:13] == "GuiaPagamento":
+    if "GuiaPagamento" in company_file:
         pattern = r"_(\d{2})(\d{4})_"
     else:
         pattern = r"(\d{2})(\d{4}).pdf"
@@ -135,10 +136,11 @@ def __get_companies_list(df):
 
 
 def get_companies_list(
-    excel_file_path="{}/empresas.xlsx".format(os.getcwd()),
+    excel_file_path="{}".format(
+        os.path.join(Path(__file__).parent, "api/empresas.xlsx")
+    ),
 ) -> pd.DataFrame:
     df = __get_dataframe(excel_file_path)
-
     return df.from_dict(__get_companies_list(df))
 
 
@@ -196,6 +198,8 @@ def __rename_file(filename):
         new_name = "Folha de Pagamento - 0001.pdf"
     elif "Recibo" in filename:
         new_name = "Recibo de Pagamento - 0001.pdf"
+    elif any(name in filename for name in ["GuiaPagamento", "Guia de Pagamento"]):
+        new_name = "Guia de Pagamento - 0001.pdf"
     else:
         new_name = filename
 

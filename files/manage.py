@@ -46,13 +46,15 @@ def backup_files(type_of_event):
     print("/" * 10 + "*" * 30 + "/" * 10)
 
 
-def generate_report_file(list_object: list, name, json_file=False):
+def generate_report_file(
+    list_object: list, name, ctx_path=Path(__file__).parent.parent, json_file=False
+):
     if not json_file:
-        with open(f"{os.getcwd()}/output/{name}.txt", "w") as file:
+        with open(f"{ctx_path}/output/{name}.txt", "w") as file:
             for text in list_object:
                 file.write(text + "\n")
     else:
-        with open(f"{os.getcwd()}/output/{name}.json", "w") as file:
+        with open(f"{ctx_path}/output/{name}.json", "w") as file:
             json.dump(list_object, file)
 
 
@@ -61,13 +63,13 @@ def __path_exists(path):
     if not os.path.exists(path):
         # Se não existir, criar o diretório
         os.makedirs(path)
-        print(f'\nDiretório "{path}" criado com sucesso.')
+        print(f'Diretório "{path}" criado com sucesso.\n')
 
 
 def __is_server_mounted(directory_path):
     try:
         # Execute o comando "mount" e capture a saída
-        output = subprocess.check_output(["mount"], text=True)
+        output = subprocess.check_output(["mount"], text=True, cwd=REPO_CWD)
 
         # Verifique se o caminho do diretório está na saída
         if directory_path in output:
@@ -83,7 +85,9 @@ def __is_tool_available(name):
     """Verifica se uma ferramenta específica está disponível no sistema."""
     try:
         devnull = open(os.devnull)
-        subprocess.Popen([name], stdout=devnull, stderr=devnull).communicate()
+        subprocess.Popen(
+            [name], stdout=devnull, stderr=devnull, cwd=REPO_CWD
+        ).communicate()
     except OSError as e:
         if e.errno == errno.ENOENT:
             return False
@@ -97,7 +101,9 @@ def __install_sshfs():
     )
     time.sleep(5)
     try:
-        subprocess.run(["sudo", "apt", "install", "-y", "sshfs"], check=True)
+        subprocess.run(
+            ["sudo", "apt", "install", "-y", "sshfs"], check=True, cwd=REPO_CWD
+        )
     except subprocess.CalledProcessError:
         print(
             "Erro ao atualizar ou instalar o sshfs. Por favor, tente manualmente.\n\nUSE: 'sudo apt update && sudo apt-get install sshfs'"
@@ -110,7 +116,7 @@ def __manage_last_stash():
     try:
         # Verificar se há stashes
         stash_list = (
-            subprocess.check_output(["git", "stash", "list"])
+            subprocess.check_output(["git", "stash", "list"], cwd=REPO_CWD)
             .decode()
             .strip()
             .split("\n")
@@ -128,7 +134,7 @@ def __manage_last_stash():
             if stash_name:
                 # Obter informações detalhadas sobre o stash
                 stash_details = subprocess.check_output(
-                    ["git", "stash", "show", "-s", stash_name]
+                    ["git", "stash", "show", "-s", stash_name], cwd=REPO_CWD
                 ).decode()
 
                 stash_lines = stash_details.split("\n")
@@ -149,7 +155,9 @@ def __manage_last_stash():
 
                         if time_difference > one_day:
                             print("Removendo stash mais antigo:", stash_name)
-                            subprocess.call(["git", "stash", "drop", stash_name])
+                            subprocess.call(
+                                ["git", "stash", "drop", stash_name], cwd=REPO_CWD
+                            )
                         else:
                             print(
                                 f"Modificações em stash encontradas ({stash_message})."
@@ -176,10 +184,13 @@ def __execute_pull_from_repo(
 ):
     if stdOut:
         return subprocess.run(
-            ["git", "pull", origin, branch], stderr=subprocess.PIPE, text=True
+            ["git", "pull", origin, branch],
+            stderr=subprocess.PIPE,
+            text=True,
+            cwd=REPO_CWD,
         )
     elif output:
-        return subprocess.call(["git", "pull", origin, branch])
+        return subprocess.call(["git", "pull", origin, branch], cwd=REPO_CWD)
     else:
         raise Exception(
             "Informe se a saída do pull será impressa em tela ou string no return"
@@ -188,20 +199,22 @@ def __execute_pull_from_repo(
 
 def check_for_updates():
     # Configuração global para rebase
-    subprocess.call(["git", "config", "--global", "pull.rebase", "true"])
+    subprocess.call(["git", "config", "--global", "pull.rebase", "true"], cwd=REPO_CWD)
     __manage_last_stash()
 
     print("Verificando se o repositário local está atualizado com o remoto...")
     try:
         # Obtém a saída do comando 'git rev-parse HEAD', que retorna o hash do último commit no repositório local
         local_hash = (
-            subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+            subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO_CWD)
+            .decode()
+            .strip()
         )
 
         # Obtém a saída do comando 'git ls-remote origin -h refs/heads/main', que retorna o hash do último commit no repositório remoto
         remote_hash = (
             subprocess.check_output(
-                ["git", "ls-remote", "origin", "-h", "refs/heads/main"]
+                ["git", "ls-remote", "origin", "-h", "refs/heads/main"], cwd=REPO_CWD
             )
             .decode()
             .split()[0]
@@ -223,7 +236,9 @@ def check_for_updates():
                 "error: cannot pull with rebase: You have unstaged changes."
                 in output.stderr
             ):
-                subprocess.call(["git", "stash", "save", "app auto-stash"])
+                subprocess.call(
+                    ["git", "stash", "save", "app auto-stash"], cwd=REPO_CWD
+                )
                 time.sleep(2)
                 __execute_pull_from_repo(output=True)
                 time.sleep(2)
@@ -256,6 +271,7 @@ def mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            cwd=REPO_CWD,
         )
 
         stdout, stderr = process.communicate(input=f"{password}\n")
@@ -274,11 +290,11 @@ def mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
 
 def umount_server(directory_path=LOCAL_SERVER_PATH):
     try:
-        subprocess.run(["fusermount", "-u", directory_path], check=True)
+        subprocess.run(["fusermount", "-u", directory_path], check=True, cwd=REPO_CWD)
         print(f"\nDiretório {directory_path} desmontado com sucesso.")
     except subprocess.CalledProcessError:
         # print(f"\nErro ao desmontar o diretório {directory_path}.")
         # print("\nNova tentativa em 5 segundos...")
         time.sleep(5)
-        subprocess.run(["umount", directory_path], check=True)
+        subprocess.run(["umount", directory_path], check=True, cwd=REPO_CWD)
         print(f"\nDiretório {directory_path} desmontado com sucesso.")

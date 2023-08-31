@@ -1,10 +1,16 @@
 import os
+import socket
 from datetime import datetime
+from pathlib import Path
 
 SUDO_PASSWD = "dev@123"
+REPO_CWD = Path(__file__).parent.parent
 DESTINATION_SUFIX_PATH = "PESSOAL/01 - FOLHAS E MOVIMENTACOES/{DATE}"
 CURRENT_DATE_SUFIX_PATH = datetime.now().strftime("%Y/%m - %B")
-LOCAL_SERVER_PATH = "{}/server".format(os.path.expanduser("~"))
+LOCAL_SERVER_PATH_SUFIX = (
+    "server" if not socket.getfqdn() == "servidor" else "/hd/server"
+)
+LOCAL_SERVER_PATH = "{}/{}".format(os.path.expanduser("~"), LOCAL_SERVER_PATH_SUFIX)
 ADIANT_FOLHA_FOLDER_PATH = "{}/AUTOMAÇÕES/PESSOAL/FOLHA ADIANTAMENTO".format(
     LOCAL_SERVER_PATH
 )
