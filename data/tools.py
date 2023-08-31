@@ -134,7 +134,9 @@ def __get_companies_list(df):
     ]
 
 
-def get_companies_list(excel_file_path="empresas.xlsx") -> pd.DataFrame:
+def get_companies_list(
+    excel_file_path="{}/empresas.xlsx".format(os.getcwd()),
+) -> pd.DataFrame:
     df = __get_dataframe(excel_file_path)
 
     return df.from_dict(__get_companies_list(df))
@@ -161,7 +163,7 @@ def __extract_cnpj_from_filename(df, filename):
         raise CompanyNotFound("Company not found")
 
 
-def get_company_cod_by_filename(df,company_name: str):
+def get_company_cod_by_filename(df, company_name: str):
     # Definindo o padrão de regex para capturar a sequência de números antes do hífen
     pattern = r"(\d+)-"
 
