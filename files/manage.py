@@ -8,8 +8,12 @@ from data.exceptions import FileNotFound
 
 
 def move_file(company_name, file_name, complete_path):
-    destination_path = tools.generate_folder_path(company_name, file_name)
-    destination_path = tools.generate_new_file_suffix(destination_path, file_name)
+    try:
+        destination_path = tools.generate_folder_path(company_name, file_name)
+        destination_path = tools.generate_new_file_suffix(destination_path, file_name)
+    except Exception as e:
+        print(f"\n{e}\n")
+        return
     try:
         shutil.move(complete_path, destination_path)
     except FileNotFoundError as e:
@@ -45,10 +49,11 @@ def backup_files(type_of_event):
 def generate_report_file(
     list_object: list, name, ctx_path=Path(__file__).parent.parent, json_file=False
 ):
+    path = f"{ctx_path}/output/{name}"
     if not json_file:
-        with open(f"{ctx_path}/output/{name}.txt", "w") as file:
+        with open(f"{path}.txt", "w") as file:
             for text in list_object:
                 file.write(text + "\n")
     else:
-        with open(f"{ctx_path}/output/{name}.json", "w") as file:
+        with open(f"{path}.json", "w") as file:
             json.dump(list_object, file)
