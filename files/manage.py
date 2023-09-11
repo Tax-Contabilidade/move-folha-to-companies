@@ -7,10 +7,12 @@ from data.exceptions import FileNotFound
 from lib.consts import *
 
 
-def __get_conferencia_path(module):
-    return CONFERENCIA_PATH.replace(
+def __get_conferencia_path(module, company_name=None):
+    path = CONFERENCIA_PATH.replace(
         "MODULO", "FOLHA" if module == tools.modulos.FOLHA else "ADIANTAMENTO FOLHA"
     )
+
+    return path.replace("COMPANY", company_name) if company_name else path
 
 
 def __remove_files_from_conferencia_dir(destiny):
@@ -22,19 +24,26 @@ def __remove_files_from_conferencia_dir(destiny):
     # Itera sobre a lista de arquivos e exclui cada um deles
     for arquivo in arquivos_no_diretorio:
         caminho_completo = os.path.join(destiny, arquivo)
+        if os.path.isfile(caminho_completo):
+            try:
+                os.unlink(caminho_completo)
+                print(f"ARQUIVO {caminho_completo} excluído com sucesso.")
+            except Exception as e:
+                print(f"Erro ao excluir o ARQUIVO {caminho_completo}: {str(e)}")
         try:
-            os.unlink(caminho_completo)
-            print(f"Arquivo {caminho_completo} excluído com sucesso.")
+            shutil.rmtree(caminho_completo)
+            print(f"PASTA {caminho_completo} excluído com sucesso.")
         except Exception as e:
-            print(f"Erro ao excluir o arquivo {caminho_completo}: {str(e)}")
+            print(f"Erro ao excluir a PASTA {caminho_completo}: {str(e)}")
 
 
-def __send_to_conferencia(origin, file_name, module):
-    conferencia_dir = __get_conferencia_path(module)
+def __send_to_conferencia(origin, company_name, file_name, module):
+    conferencia_dir = __get_conferencia_path(module, company_name)
     conferencia_dir = tools.generate_new_file_suffix(conferencia_dir, file_name, module)
 
-    shutil.copy2(origin, conferencia_dir)
-    print(f"\nCopiado arquivo {origin} para {conferencia_dir}")
+    tools.path_exists(conferencia_dir)
+    shutil.copy(origin, conferencia_dir)
+    print(f"\nArquivo {conferencia_dir} enviado para CONFERÊNCIA")
 
 
 def move_file(company_name, file_name, complete_path, module):
@@ -47,7 +56,7 @@ def move_file(company_name, file_name, complete_path, module):
         print(f"\n{e}\n")
         return
     try:
-        __send_to_conferencia(complete_path, file_name, module)
+        __send_to_conferencia(complete_path, company_name, file_name, module)
         shutil.move(complete_path, destination_path)
     except FileNotFoundError as e:
         raise FileNotFound(e)
