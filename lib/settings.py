@@ -5,9 +5,9 @@ import sys
 import time
 from datetime import timedelta
 
-from data.consts import *
-from data.tools import path_exists
+from data.tools import path_exists, prints_separator
 from files.manage import backup_files
+from lib.consts import *
 
 
 def __is_server_mounted(directory_path):
@@ -104,7 +104,7 @@ def __manage_last_stash():
                         else:
                             print(
                                 f"Modificações em stash encontradas ({stash_message})."
-                                " Você pode recuperá-las usando 'git stash apply'."
+                                " Você pode recuperá-las usando 'git stash apply'.\n"
                                 " A atualização prosseguirá normalmente.\n"
                             )
                     else:
@@ -145,7 +145,7 @@ def __check_for_updates():
     subprocess.call(["git", "config", "--global", "pull.rebase", "true"], cwd=REPO_CWD)
     __manage_last_stash()
 
-    print("Verificando se o repositário local está atualizado com o remoto...")
+    prints_separator(message="VERIFICANDO POR ATUALIZÕES NO REPOSITORIO REMOTO...")
     try:
         # Obtém a saída do comando 'git rev-parse HEAD', que retorna o hash do último commit no repositório local
         local_hash = (
@@ -198,6 +198,7 @@ def __check_for_updates():
 
 
 def __mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
+    prints_separator("MONTANDO O SERVIDOR LOCAL...")
     path_exists(local_path)
     if not __is_server_mounted(local_path):
         if not __is_tool_available("sshfs"):
@@ -232,6 +233,7 @@ def __mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
 
 
 def __umount_server(directory_path=LOCAL_SERVER_PATH):
+    prints_separator(message="DESMONTANDO O SERVIDOR LOCAL...")
     try:
         subprocess.run(["fusermount", "-u", directory_path], check=True, cwd=REPO_CWD)
         print(f"\nDiretório {directory_path} desmontado com sucesso.")
@@ -277,8 +279,9 @@ def get_args_from_command_line():
 
 
 def init_setup(type_of_module):
+    prints_separator(message=f"Executando módulo {type_of_module}...")
     __check_for_updates()
-    __config_server_and_backup(type_of_module)
+    __config_server_and_backup(type_of_module.value)
 
 
 def end_application():

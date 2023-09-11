@@ -1,15 +1,14 @@
-import argparse
 import enum
 import os
 import re
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Union
 
 import pandas as pd
 
-import data.consts as consts
+import lib.consts as consts
+from data import tools
 from data.exceptions import CompanyNotFound
 
 
@@ -86,18 +85,27 @@ def __parse_date(date_str):
     return f"{month} - {year}"
 
 
-def __rename_file(filename):
+def __rename_file(filename, module):
     if "Extrato" in filename:
-        new_name = "Extrato.pdf"
+        if module == tools.modulos.ADIANTAMENTO_FOLHA:
+            new_name = "Extrato de Adiantamento.pdf"
+        else:
+            new_name = "Extrato.pdf"
     elif any(name in filename for name in ["DAE", "Dae"]):
         match = re.search(r"(\d{6})", filename)
-        new_name = "DAE - {}.pdf".format(__parse_date(match.group(1)))
+        new_name = f"DAE - {__parse_date(match.group(1))}.pdf"
     elif any(name in filename for name in ["Férias", "Ferias", "ferias"]):
         new_name = "Programação de férias - 0001.pdf"
     elif any(name in filename for name in ["Folha", "folha"]):
-        new_name = "Folha de Pagamento - 0001.pdf"
+        if module == tools.modulos.ADIANTAMENTO_FOLHA:
+            new_name = "Folha de Pagamento - 0001.pdf"
+        else:
+            new_name = "Folha de Adiantamento - 0001.pdf"
     elif "Recibo" in filename:
-        new_name = "Recibo de Pagamento - 0001.pdf"
+        if module == tools.modulos.ADIANTAMENTO_FOLHA:
+            new_name = "Recibo de Pagamento - 0001.pdf"
+        else:
+            new_name = "Recibo de Adiantamento - 0001.pdf"
     elif any(name in filename for name in ["GuiaPagamento", "Guia de Pagamento"]):
         new_name = "Guia de Pagamento - 0001.pdf"
     else:
@@ -106,8 +114,15 @@ def __rename_file(filename):
     return new_name
 
 
-def generate_new_file_suffix(destination_path, file_name):
-    new_file_name = __rename_file(file_name)
+def prints_separator(message=None):
+    # Imprimir o separador no final
+    print("/" * 10 + "*" * 30 + "/" * 10)
+    if message:
+        print("{}\n\n".format(message))
+
+
+def generate_new_file_suffix(destination_path, file_name, module):
+    new_file_name = __rename_file(file_name, module)
 
     return os.path.join(destination_path, new_file_name)
 

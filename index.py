@@ -13,6 +13,7 @@ companies_moved = []
 
 
 def main(companies, success_list, error_list, modulo: tools.modulos, umount=True):
+    tools.prints_separator(message="INICIO APLICAÇÃO: Movendo Arquivos...")
     for file_name in os.listdir(modulo.value):
         complete_path = os.path.join(modulo.value, file_name)
         if os.path.isfile(complete_path):
@@ -20,15 +21,13 @@ def main(companies, success_list, error_list, modulo: tools.modulos, umount=True
             company_name = tools.get_company_name_by_cod(companies, company_cod)
 
             try:
-                file_text = move_file(company_name, file_name, complete_path)
+                file_text = move_file(company_name, file_name, complete_path, modulo)
                 success_list.append(file_text)
 
             except (CompanyNotFound, FileNotFound) as e:
                 text = "{}\n{}".format((company_name, file_name), e)
                 error_list.append(text)
 
-    # Imprimir o separador no final
-    print("/" * 10 + "*" * 30 + "/" * 10)
     generate_report_file(success_list, "movidos", json_file=True)
     generate_report_file(error_list, "erros", json_file=False)
 
@@ -38,9 +37,8 @@ def main(companies, success_list, error_list, modulo: tools.modulos, umount=True
 
 def execute_module(**kwargs):
     modulo = kwargs["modulo"]
-    init_setup(modulo.value)
-
-    print(f"Executando módulo {modulo}...")
+    init_setup(modulo)
+    ##--
     main(**kwargs)
 
 
