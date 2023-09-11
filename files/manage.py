@@ -32,14 +32,14 @@ def __remove_files_from_conferencia_dir(destiny):
         if os.path.isfile(caminho_completo):
             try:
                 os.unlink(caminho_completo)
-                print(f"ARQUIVO {caminho_completo} excluído com sucesso.")
+                tools.console(f"ARQUIVO {caminho_completo} excluído com sucesso.")
             except Exception as e:
-                print(f"Erro ao excluir o ARQUIVO {caminho_completo}: {str(e)}")
+                tools.console(f"Erro ao excluir o ARQUIVO {caminho_completo}: {str(e)}")
         try:
             shutil.rmtree(caminho_completo)
-            print(f"PASTA {caminho_completo} excluído com sucesso.")
+            tools.console(f"PASTA {caminho_completo} excluído com sucesso.")
         except Exception as e:
-            print(f"Erro ao excluir a PASTA {caminho_completo}: {str(e)}")
+            tools.console(f"Erro ao excluir a PASTA {caminho_completo}: {str(e)}")
 
 
 def __send_to_conferencia(origin, company_name, file_name, module):
@@ -50,7 +50,8 @@ def __send_to_conferencia(origin, company_name, file_name, module):
 
     tools.path_exists(conferencia_dir)
     shutil.copy(origin, new_conferencia_dir)
-    print(f"\nArquivo {conferencia_dir} enviado para CONFERÊNCIA")
+
+    return f"Arquivo {conferencia_dir} enviado para CONFERÊNCIA"
 
 
 def move_file(company_name, file_name, complete_path, module):
@@ -60,16 +61,19 @@ def move_file(company_name, file_name, complete_path, module):
             destination_path, file_name, module
         )
     except Exception as e:
-        print(f"\n{e}\n")
+        tools.console(f"\n{e}\n")
         return
     try:
-        __send_to_conferencia(complete_path, company_name, file_name, module)
+        conferencia_text = __send_to_conferencia(
+            complete_path, company_name, file_name, module
+        )
+        tools.prints_separator(message=conferencia_text, simples=True)
+
         shutil.move(complete_path, destination_path)
     except FileNotFoundError as e:
         raise FileNotFound(e)
 
-    text = f"\nMovido {file_name} para: \n{destination_path}\n"
-    print(text)
+    tools.console(f"Movido {file_name} para: \n{destination_path}\n")
 
     dicionario_export = {"file": file_name, "path": destination_path}
     return dicionario_export
@@ -79,7 +83,7 @@ def backup_files(module):
     tools.path_exists(BACKUP_PATH)
     conferencia_dir = __get_conferencia_path(module)
 
-    tools.prints_separator(message=f"EFETUANDO BACKUP - {module}\n\n")
+    tools.prints_separator(message=f"EFETUANDO BACKUP - {module}")
     ##BACKUP
     for item in os.listdir(module):
         origin = os.path.join(module, item)
@@ -89,12 +93,16 @@ def backup_files(module):
             if os.path.exists(dest):
                 shutil.rmtree(dest)
             shutil.copytree(origin, dest)
-            print(f"\nCopiado {origin} para {dest}\n")
+            tools.prints_separator(
+                message=f"\nCopiado {origin} para {dest}\n", simples=True
+            )
         else:  # Se não for um diretório, assumimos que é um arquivo
             shutil.copy2(origin, dest)
-            print(f"\nCopiado arquivo {origin} para {dest}\n")
+            tools.prints_separator(
+                message=f"\nCopiado arquivo {origin} para {dest}\n", simples=True
+            )
 
-    tools.prints_separator(message=f"LIMPANDO PASTA DE CONFERENCIA - {module}\n\n")
+    tools.prints_separator(message=f"LIMPANDO PASTA DE CONFERÊNCIA - {module}")
     ##CONFERENCIA
     __remove_files_from_conferencia_dir(conferencia_dir)
 

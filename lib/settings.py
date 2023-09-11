@@ -5,7 +5,7 @@ import sys
 import time
 from datetime import timedelta
 
-from data.tools import path_exists, prints_separator
+from data.tools import console, path_exists, prints_separator
 from files.manage import backup_files
 from lib.consts import *
 
@@ -40,7 +40,7 @@ def __is_tool_available(name):
 
 def __install_sshfs():
     """Instala o sshfs usando o gerenciador de pacotes apt."""
-    print(
+    console(
         "\nSSHFS não encontrado! Isto é necessário para montar o diretário remoto. Tentando instalar...\n"
     )
     time.sleep(5)
@@ -49,7 +49,7 @@ def __install_sshfs():
             ["sudo", "apt", "install", "-y", "sshfs"], check=True, cwd=REPO_CWD
         )
     except subprocess.CalledProcessError:
-        print(
+        console(
             "Erro ao atualizar ou instalar o sshfs. Por favor, tente manualmente.\n\nUSE: 'sudo apt update && sudo apt-get install sshfs'"
         )
         sys.exit(1)
@@ -97,26 +97,26 @@ def __manage_last_stash():
                         one_day = timedelta(days=1)
 
                         if time_difference > one_day:
-                            print("Removendo stash mais antigo:", stash_name)
+                            console("Removendo stash mais antigo:", stash_name)
                             subprocess.call(
                                 ["git", "stash", "drop", stash_name], cwd=REPO_CWD
                             )
                         else:
-                            print(
+                            console(
                                 f"Modificações em stash encontradas ({stash_message})."
                                 " Você pode recuperá-las usando 'git stash apply'.\n"
                                 " A atualização prosseguirá normalmente.\n"
                             )
                     else:
-                        print(
+                        console(
                             "Não foi possível obter informações sobre a data do stash.\n"
                         )
                 else:
-                    print("Não foi possível obter informações sobre o stash.\n")
+                    console("Não foi possível obter informações sobre o stash.\n")
             else:
-                print("O último stash não possui um nome válido.\n")
+                console("O último stash não possui um nome válido.\n")
         else:
-            print("Não há stashes disponíveis.\n")
+            console("Não há stashes disponíveis.\n")
 
     except subprocess.CalledProcessError as e:
         raise Exception("Erro ao executar o comando git.\nErro: " + str(e))
@@ -145,7 +145,7 @@ def __check_for_updates():
     subprocess.call(["git", "config", "--global", "pull.rebase", "true"], cwd=REPO_CWD)
     __manage_last_stash()
 
-    prints_separator(message="VERIFICANDO POR ATUALIZÕES NO REPOSITORIO REMOTO...")
+    prints_separator(message="VERIFICANDO POR ATUALIZAÇÕES NO REPOSITORIO REMOTO...")
     try:
         # Obtém a saída do comando 'git rev-parse HEAD', que retorna o hash do último commit no repositório local
         local_hash = (
@@ -165,12 +165,12 @@ def __check_for_updates():
 
         # Compara os hashes dos commits locais e remotos
         if local_hash == remote_hash:
-            print(
+            console(
                 "O repositório local está atualizado com o remoto. Nenhuma ação é necessária.\n"
             )
             time.sleep(2)
         else:
-            print(
+            console(
                 "O repositório local não está atualizado com o remoto. Executando pull from origin\n"
             )
             time.sleep(2)
@@ -185,12 +185,12 @@ def __check_for_updates():
                 time.sleep(2)
                 __execute_pull_from_repo(output=True)
                 time.sleep(2)
-                print("\nAtualização concluída.")
-                print(
+                console("\nAtualização concluída.")
+                console(
                     "Há modificações salvas em stash. use 'git stash pop' para restaurá-las.\n"
                 )
             else:
-                print("Atualização concluída.\n")
+                console("Atualização concluída.\n")
 
     except subprocess.CalledProcessError as e:
         time.sleep(2)
@@ -221,14 +221,14 @@ def __mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
         stdout, stderr = process.communicate(input=f"{password}\n")
 
         if process.returncode == 0:
-            print(f"\nSSHFS montado com sucesso em: {local_path}\n")
+            console(f"\nSSHFS montado com sucesso em: {local_path}\n")
         else:
-            print("\nErro ao montar SSHFS: ")
+            console("\nErro ao montar SSHFS: ")
             raise Exception(stderr)
 
         return True
 
-    print(f"\nSSHFS já está montado em:\n{local_path}\n")
+    console(f"\nSSHFS já está montado em:\n{local_path}\n")
     return True
 
 
@@ -236,13 +236,13 @@ def __umount_server(directory_path=LOCAL_SERVER_PATH):
     prints_separator(message="DESMONTANDO O SERVIDOR LOCAL...")
     try:
         subprocess.run(["fusermount", "-u", directory_path], check=True, cwd=REPO_CWD)
-        print(f"\nDiretório {directory_path} desmontado com sucesso.")
+        console(f"\nDiretório {directory_path} desmontado com sucesso.")
     except subprocess.CalledProcessError:
         # print(f"\nErro ao desmontar o diretório {directory_path}.")
         # print("\nNova tentativa em 5 segundos...")
         time.sleep(5)
         subprocess.run(["umount", directory_path], check=True, cwd=REPO_CWD)
-        print(f"\nDiretório {directory_path} desmontado com sucesso.")
+        console(f"\nDiretório {directory_path} desmontado com sucesso.")
 
 
 def __config_server_and_backup(type_of_module):
@@ -270,7 +270,7 @@ def get_args_from_command_line():
     args = parser.parse_args()
 
     if args.folha and args.adiant:
-        print(
+        console(
             "\nErro: Não use os flags -f e -a juntas. Ainda não há suporte para a execução dos módulos FOLHA e ADIANTAMENTO_FOLHA simultaneamente"
         )
         sys.exit(1)

@@ -86,35 +86,6 @@ def __parse_date(date_str):
     return f"{month} - {year}"
 
 
-# def __rename_file(filename, module):
-#     if "Extrato" in filename:
-#         if module == tools.modulos.ADIANTAMENTO_FOLHA:
-#             new_name = "Folha de Adiantamento - 0001.pdf"
-#         else:
-#             new_name = "Folha de Pagamento - 0001.pdf"
-#     elif any(name in filename for name in ["DAE", "Dae"]):
-#         match = re.search(r"(\d{6})", filename)
-#         new_name = f"DAE - {__parse_date(match.group(1))}.pdf"
-#     elif any(name in filename for name in ["Férias", "Ferias", "ferias"]):
-#         new_name = "Programação de férias - 0001.pdf"
-#     elif any(name in filename for name in ["Folha", "folha"]):
-#         if module == tools.modulos.ADIANTAMENTO_FOLHA:
-#             new_name = "Folha de Adiantamento - 0001.pdf"
-#         else:
-#             new_name = "Folha de Pagamento - 0001.pdf"
-#     elif "Recibo" in filename:
-#         if module == tools.modulos.ADIANTAMENTO_FOLHA:
-#             new_name = "Recibo de Adiantamento - 0001.pdf"
-#         else:
-#             new_name = "Recibo de Pagamento - 0001.pdf"
-#     elif any(name in filename for name in ["GuiaPagamento", "Guia de Pagamento"]):
-#         new_name = "Guia de Pagamento - 0001.pdf"
-#     else:
-#         new_name = filename
-
-#     return new_name
-
-
 def __rename_file(filename, module):
     def rename_with_date(template, date):
         return template.replace("{date}", __parse_date(date))
@@ -137,11 +108,15 @@ def __rename_file(filename, module):
     return filename
 
 
-def prints_separator(message=None):
+def console(message, tab=True):
+    print("{}{}".format("    ", message)) if tab else print(message)
+
+
+def prints_separator(message=None, simples=False):
     # Imprimir o separador no final
-    print("/" * 10 + "*" * 30 + "/" * 10)
+    print("/" * 10 + "*" * 30 + "/" * 10) if not simples else print("--" * 20)
     if message:
-        print("{}\n\n".format(message))
+        console("{}\n".format(message), tab=True if simples else False)
 
 
 def generate_new_file_suffix(destination_path, file_name, module):
