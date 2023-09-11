@@ -30,8 +30,6 @@ build/
 # Cache de pacotes gerados pelo pip
 pip-wheel-metadata/
 *.whl
-# PASTAS DO PROJETO
-FOLHAS/
 
 .~lock.*
 .vscode/

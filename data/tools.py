@@ -10,6 +10,7 @@ import pandas as pd
 import lib.consts as consts
 from data import tools
 from data.exceptions import CompanyNotFound
+from lib.patterns import ADIANTAMENTO_FOLHA_PATTERN, FOLHA_PATTERN
 
 
 class modulos(enum.Enum):
@@ -85,33 +86,55 @@ def __parse_date(date_str):
     return f"{month} - {year}"
 
 
-def __rename_file(filename, module):
-    if "Extrato" in filename:
-        if module == tools.modulos.ADIANTAMENTO_FOLHA:
-            new_name = "Extrato de Adiantamento.pdf"
-        else:
-            new_name = "Extrato.pdf"
-    elif any(name in filename for name in ["DAE", "Dae"]):
-        match = re.search(r"(\d{6})", filename)
-        new_name = f"DAE - {__parse_date(match.group(1))}.pdf"
-    elif any(name in filename for name in ["Férias", "Ferias", "ferias"]):
-        new_name = "Programação de férias - 0001.pdf"
-    elif any(name in filename for name in ["Folha", "folha"]):
-        if module == tools.modulos.ADIANTAMENTO_FOLHA:
-            new_name = "Folha de Pagamento - 0001.pdf"
-        else:
-            new_name = "Folha de Adiantamento - 0001.pdf"
-    elif "Recibo" in filename:
-        if module == tools.modulos.ADIANTAMENTO_FOLHA:
-            new_name = "Recibo de Pagamento - 0001.pdf"
-        else:
-            new_name = "Recibo de Adiantamento - 0001.pdf"
-    elif any(name in filename for name in ["GuiaPagamento", "Guia de Pagamento"]):
-        new_name = "Guia de Pagamento - 0001.pdf"
-    else:
-        new_name = filename
+# def __rename_file(filename, module):
+#     if "Extrato" in filename:
+#         if module == tools.modulos.ADIANTAMENTO_FOLHA:
+#             new_name = "Folha de Adiantamento - 0001.pdf"
+#         else:
+#             new_name = "Folha de Pagamento - 0001.pdf"
+#     elif any(name in filename for name in ["DAE", "Dae"]):
+#         match = re.search(r"(\d{6})", filename)
+#         new_name = f"DAE - {__parse_date(match.group(1))}.pdf"
+#     elif any(name in filename for name in ["Férias", "Ferias", "ferias"]):
+#         new_name = "Programação de férias - 0001.pdf"
+#     elif any(name in filename for name in ["Folha", "folha"]):
+#         if module == tools.modulos.ADIANTAMENTO_FOLHA:
+#             new_name = "Folha de Adiantamento - 0001.pdf"
+#         else:
+#             new_name = "Folha de Pagamento - 0001.pdf"
+#     elif "Recibo" in filename:
+#         if module == tools.modulos.ADIANTAMENTO_FOLHA:
+#             new_name = "Recibo de Adiantamento - 0001.pdf"
+#         else:
+#             new_name = "Recibo de Pagamento - 0001.pdf"
+#     elif any(name in filename for name in ["GuiaPagamento", "Guia de Pagamento"]):
+#         new_name = "Guia de Pagamento - 0001.pdf"
+#     else:
+#         new_name = filename
 
-    return new_name
+#     return new_name
+
+
+def __rename_file(filename, module):
+    def rename_with_date(template, date):
+        return template.replace("{date}", __parse_date(date))
+
+    patterns = (
+        ADIANTAMENTO_FOLHA_PATTERN
+        if module == tools.modulos.ADIANTAMENTO_FOLHA
+        else FOLHA_PATTERN
+    )
+
+    for patterns_list, template in patterns:
+        if any(pattern in filename for pattern in patterns_list):
+            if "DAE" in patterns_list:
+                match = re.search(r"(\d{6})", filename)
+                if match:
+                    return rename_with_date(template, match.group(1))
+            else:
+                return template
+
+    return filename
 
 
 def prints_separator(message=None):

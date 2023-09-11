@@ -1,5 +1,6 @@
 import json
 import shutil
+import time
 from pathlib import Path
 
 from data import tools
@@ -12,7 +13,11 @@ def __get_conferencia_path(module, company_name=None):
         "MODULO", "FOLHA" if module == tools.modulos.FOLHA else "ADIANTAMENTO FOLHA"
     )
 
-    return path.replace("COMPANY", company_name) if company_name else path
+    return (
+        path.replace("COMPANY", company_name)
+        if company_name
+        else path.replace("COMPANY", "")
+    )
 
 
 def __remove_files_from_conferencia_dir(destiny):
@@ -39,10 +44,12 @@ def __remove_files_from_conferencia_dir(destiny):
 
 def __send_to_conferencia(origin, company_name, file_name, module):
     conferencia_dir = __get_conferencia_path(module, company_name)
-    conferencia_dir = tools.generate_new_file_suffix(conferencia_dir, file_name, module)
+    new_conferencia_dir = tools.generate_new_file_suffix(
+        conferencia_dir, file_name, module
+    )
 
     tools.path_exists(conferencia_dir)
-    shutil.copy(origin, conferencia_dir)
+    shutil.copy(origin, new_conferencia_dir)
     print(f"\nArquivo {conferencia_dir} enviado para CONFERÊNCIA")
 
 
