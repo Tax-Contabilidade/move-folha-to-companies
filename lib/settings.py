@@ -41,7 +41,7 @@ def __is_tool_available(name):
 def __install_sshfs():
     """Instala o sshfs usando o gerenciador de pacotes apt."""
     console(
-        "\nSSHFS não encontrado! Isto é necessário para montar o diretário remoto. Tentando instalar...\n"
+        "SSHFS não encontrado! Isto é necessário para montar o diretário remoto. Tentando instalar..."
     )
     time.sleep(5)
     try:
@@ -50,7 +50,7 @@ def __install_sshfs():
         )
     except subprocess.CalledProcessError:
         console(
-            "Erro ao atualizar ou instalar o sshfs. Por favor, tente manualmente.\n\nUSE: 'sudo apt update && sudo apt-get install sshfs'"
+            "Erro ao atualizar ou instalar o sshfs. Por favor, tente manualmente. USE: 'sudo apt update && sudo apt-get install sshfs'"
         )
         sys.exit(1)
 
@@ -104,22 +104,22 @@ def __manage_last_stash():
                         else:
                             console(
                                 f"Modificações em stash encontradas ({stash_message})."
-                                " Você pode recuperá-las usando 'git stash apply'.\n"
-                                " A atualização prosseguirá normalmente.\n"
+                                " Você pode recuperá-las usando 'git stash apply'."
+                                " A atualização prosseguirá normalmente."
                             )
                     else:
                         console(
-                            "Não foi possível obter informações sobre a data do stash.\n"
+                            "Não foi possível obter informações sobre a data do stash."
                         )
                 else:
-                    console("Não foi possível obter informações sobre o stash.\n")
+                    console("Não foi possível obter informações sobre o stash.")
             else:
-                console("O último stash não possui um nome válido.\n")
+                console("O último stash não possui um nome válido.")
         else:
-            console("Não há stashes disponíveis.\n")
+            console("Não há stashes disponíveis.")
 
     except subprocess.CalledProcessError as e:
-        raise Exception("Erro ao executar o comando git.\nErro: " + str(e))
+        raise Exception("Erro ao executar o comando git. Erro: " + str(e))
 
 
 def __execute_pull_from_repo(
@@ -166,12 +166,12 @@ def __check_for_updates():
         # Compara os hashes dos commits locais e remotos
         if local_hash == remote_hash:
             console(
-                "O repositório local está atualizado com o remoto. Nenhuma ação é necessária.\n"
+                "O repositório local está atualizado com o remoto. Nenhuma ação é necessária."
             )
             time.sleep(2)
         else:
             console(
-                "O repositório local não está atualizado com o remoto. Executando pull from origin\n"
+                "O repositório local não está atualizado com o remoto. Executando pull from origin"
             )
             time.sleep(2)
             output = __execute_pull_from_repo(stdOut=True)
@@ -185,16 +185,16 @@ def __check_for_updates():
                 time.sleep(2)
                 __execute_pull_from_repo(output=True)
                 time.sleep(2)
-                console("\nAtualização concluída.")
+                console("Atualização concluída.")
                 console(
-                    "Há modificações salvas em stash. use 'git stash pop' para restaurá-las.\n"
+                    "Há modificações salvas em stash. use 'git stash pop' para restaurá-las."
                 )
             else:
-                console("Atualização concluída.\n")
+                console("Atualização concluída.")
 
     except subprocess.CalledProcessError as e:
         time.sleep(2)
-        raise Exception("Erro ao executar o comando git.\nErro: " + str(e))
+        raise Exception("Erro ao executar o comando git. Erro: " + str(e))
 
 
 def __mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
@@ -218,17 +218,17 @@ def __mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
             cwd=REPO_CWD,
         )
 
-        stdout, stderr = process.communicate(input=f"{password}\n")
+        stdout, stderr = process.communicate(input=f"{password}")
 
         if process.returncode == 0:
-            console(f"\nSSHFS montado com sucesso em: {local_path}\n")
+            console(f"SSHFS montado com sucesso em: {local_path}")
         else:
-            console("\nErro ao montar SSHFS: ")
+            console("Erro ao montar SSHFS: ")
             raise Exception(stderr)
 
         return True
 
-    console(f"\nSSHFS já está montado em:\n{local_path}\n")
+    console(f"SSHFS já está montado em: {local_path}")
     return True
 
 
@@ -236,13 +236,13 @@ def __umount_server(directory_path=LOCAL_SERVER_PATH):
     prints_separator(message="DESMONTANDO O SERVIDOR LOCAL...")
     try:
         subprocess.run(["fusermount", "-u", directory_path], check=True, cwd=REPO_CWD)
-        console(f"\nDiretório {directory_path} desmontado com sucesso.")
+        console(f"Diretório {directory_path} desmontado com sucesso.")
     except subprocess.CalledProcessError:
         # print(f"\nErro ao desmontar o diretório {directory_path}.")
         # print("\nNova tentativa em 5 segundos...")
         time.sleep(5)
         subprocess.run(["umount", directory_path], check=True, cwd=REPO_CWD)
-        console(f"\nDiretório {directory_path} desmontado com sucesso.")
+        console(f"Diretório {directory_path} desmontado com sucesso.")
 
 
 def __config_server_and_backup(type_of_module):
@@ -271,7 +271,7 @@ def get_args_from_command_line():
 
     if args.folha and args.adiant:
         console(
-            "\nErro: Não use os flags -f e -a juntas. Ainda não há suporte para a execução dos módulos FOLHA e ADIANTAMENTO_FOLHA simultaneamente"
+            "Erro: Não use os flags -f e -a juntas. Ainda não há suporte para a execução dos módulos FOLHA e ADIANTAMENTO_FOLHA simultaneamente"
         )
         sys.exit(1)
 
@@ -281,7 +281,7 @@ def get_args_from_command_line():
 def init_setup(type_of_module):
     prints_separator(message=f"Executando módulo {type_of_module}...")
     __check_for_updates()
-    __config_server_and_backup(type_of_module.value)
+    __config_server_and_backup(type_of_module)
 
 
 def end_application():

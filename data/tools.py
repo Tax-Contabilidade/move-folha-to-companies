@@ -1,6 +1,7 @@
 import enum
 import os
 import re
+import textwrap
 from datetime import datetime
 from pathlib import Path
 from typing import Union
@@ -109,14 +110,15 @@ def __rename_file(filename, module):
 
 
 def console(message, tab=True):
-    print("{}{}".format("    ", message)) if tab else print(message)
+    indented_message = textwrap.indent(message, "    ") if tab else message
+    print("{}{}\n".format("\n" if tab else "", indented_message))
 
 
 def prints_separator(message=None, simples=False):
     # Imprimir o separador no final
     print("/" * 10 + "*" * 30 + "/" * 10) if not simples else print("--" * 20)
     if message:
-        console("{}\n".format(message), tab=True if simples else False)
+        console("{}".format(message), tab=True if simples else False)
 
 
 def generate_new_file_suffix(destination_path, file_name, module):
@@ -130,7 +132,7 @@ def path_exists(path):
     if not os.path.exists(path):
         # Se não existir, criar o diretório
         os.makedirs(path)
-        print(f'Diretório "{path}" criado com sucesso.\n')
+        console(f'Diretório "{path}" criado com sucesso.\n')
 
 
 def get_companies_list(

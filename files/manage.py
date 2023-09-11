@@ -1,6 +1,5 @@
 import json
 import shutil
-import time
 from pathlib import Path
 
 from data import tools
@@ -10,9 +9,9 @@ from lib.consts import *
 
 def __get_conferencia_path(module, company_name=None):
     path = CONFERENCIA_PATH.replace(
-        "MODULO", "FOLHA" if module == tools.modulos.FOLHA else "ADIANTAMENTO FOLHA"
+        "MODULO",
+        "FOLHA" if module == tools.modulos.FOLHA else "ADIANTAMENTO FOLHA",
     )
-
     return (
         path.replace("COMPANY", company_name)
         if company_name
@@ -61,7 +60,7 @@ def move_file(company_name, file_name, complete_path, module):
             destination_path, file_name, module
         )
     except Exception as e:
-        tools.console(f"\n{e}\n")
+        tools.console(f"{e}")
         return
     try:
         conferencia_text = __send_to_conferencia(
@@ -73,7 +72,7 @@ def move_file(company_name, file_name, complete_path, module):
     except FileNotFoundError as e:
         raise FileNotFound(e)
 
-    tools.console(f"Movido {file_name} para: \n{destination_path}\n")
+    tools.console(f"Movido {file_name} para: {destination_path}")
 
     dicionario_export = {"file": file_name, "path": destination_path}
     return dicionario_export
@@ -85,8 +84,8 @@ def backup_files(module):
 
     tools.prints_separator(message=f"EFETUANDO BACKUP - {module}")
     ##BACKUP
-    for item in os.listdir(module):
-        origin = os.path.join(module, item)
+    for item in os.listdir(module.value):
+        origin = os.path.join(module.value, item)
         dest = os.path.join(BACKUP_PATH, item)
 
         if os.path.isdir(origin):
@@ -94,12 +93,12 @@ def backup_files(module):
                 shutil.rmtree(dest)
             shutil.copytree(origin, dest)
             tools.prints_separator(
-                message=f"\nCopiado {origin} para {dest}\n", simples=True
+                message=f"Copiado {origin} para {dest}", simples=True
             )
         else:  # Se não for um diretório, assumimos que é um arquivo
             shutil.copy2(origin, dest)
             tools.prints_separator(
-                message=f"\nCopiado arquivo {origin} para {dest}\n", simples=True
+                message=f"Copiado arquivo {origin} para {dest}", simples=True
             )
 
     tools.prints_separator(message=f"LIMPANDO PASTA DE CONFERÊNCIA - {module}")
