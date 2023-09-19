@@ -279,7 +279,7 @@ def get_args_from_command_line():
 
     if args.folha and args.adiant:
         console(
-            "Erro: Não use os flags -f e -a juntas. Ainda não há suporte para a execução dos módulos FOLHA e ADIANTAMENTO_FOLHA simultaneamente"
+            "Erro: Não use os flags -f e -a. Ainda não há suporte para a execução dos módulos FOLHA e ADIANTAMENTO_FOLHA simultaneamente"
         )
         sys.exit(1)
 
