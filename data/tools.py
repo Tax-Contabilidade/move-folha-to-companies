@@ -132,7 +132,7 @@ def path_exists(path):
     if not os.path.exists(path):
         # Se não existir, criar o diretório
         os.makedirs(path)
-        prints_separator(f'Diretório "{path}" criado com sucesso.\n')
+        console(f'Diretório "{path}" criado com sucesso.\n')
 
 
 def get_companies_list(

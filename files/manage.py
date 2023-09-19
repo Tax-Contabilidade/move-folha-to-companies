@@ -67,7 +67,7 @@ def move_file(company_name, file_name, complete_path, module):
         conferencia_text = __send_to_conferencia(
             complete_path, company_name, file_name, module
         )
-        tools.prints_separator(message=conferencia_text, simples=True)
+        tools.console(conferencia_text)
 
         shutil.move(complete_path, destination_path)
 

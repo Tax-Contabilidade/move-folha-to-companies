@@ -26,7 +26,7 @@ def main(companies, success_list, error_list, modulo: tools.modulos, umount=True
 
             except (CompanyNotFound, FileNotFound) as e:
                 text = "{}\n{}".format((company_name, file_name), e)
-                tools.prints_separator(message=text, simples=True)
+                tools.console(message=text, simples=True)
                 error_list.append(text)
 
     generate_report_file(success_list, "movidos", json_file=True)
