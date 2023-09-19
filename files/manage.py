@@ -104,7 +104,7 @@ def backup_files(module):
             )
 
     tools.prints_separator(message=f"LIMPANDO PASTA DE CONFERÊNCIA - {module}")
-    ##CONFERENCIA
+    ##CONFERENCIA FUNCTION
     __remove_files_from_conferencia_dir(conferencia_dir)
 
 
