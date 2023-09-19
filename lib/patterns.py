@@ -1,5 +1,5 @@
 ADIANTAMENTO_FOLHA_PATTERN = [
-    (["Extrato"], "Folha de Adiantamento - 0001.pdf"),
+    (["Extrato"], "Extrato de Adiantamento - 0001.pdf"),
     (["DAE", "Dae"], "DAE - {date}.pdf"),
     (["Férias", "Ferias", "ferias"], "Programação de férias - 0001.pdf"),
     (["Folha", "folha"], "Folha de Adiantamento - 0001.pdf"),
@@ -8,7 +8,7 @@ ADIANTAMENTO_FOLHA_PATTERN = [
 ]
 
 FOLHA_PATTERN = [
-    (["Extrato"], "Folha de Pagamento - 0001.pdf"),
+    (["Extrato"], "Extrato de Pagamento - 0001.pdf"),
     (["DAE", "Dae"], "DAE - {date}.pdf"),
     (["Férias", "Ferias", "ferias"], "Programação de férias - 0001.pdf"),
     (["Folha", "folha"], "Folha de Pagamento - 0001.pdf"),

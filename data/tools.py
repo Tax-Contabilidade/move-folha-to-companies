@@ -165,7 +165,7 @@ def get_company_name_by_cod(df, cod: Union[str, int]):
     if len(filtered_line) > 0:
         return filtered_line[0]
     else:
-        raise CompanyNotFound("Company not found")
+        raise CompanyNotFound("Company not found - cod: {}".format(cod))
 
 
 def generate_folder_path(company_name, company_file, specific_month=False, month=None):

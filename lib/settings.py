@@ -204,9 +204,7 @@ def __mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
         if not __is_tool_available("sshfs"):
             __install_sshfs()
 
-        command = (
-            f"sshfs dev@192.168.1.57:/home/dev/hd/server {local_path} -o password_stdin"
-        )
+        command = f"sshfs dev@192.168.18.57:/home/dev/hd/server {local_path} -o password_stdin"
 
         process = subprocess.Popen(
             command,

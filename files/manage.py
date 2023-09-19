@@ -1,5 +1,6 @@
 import json
 import shutil
+import time
 from pathlib import Path
 
 from data import tools
@@ -69,6 +70,7 @@ def move_file(company_name, file_name, complete_path, module):
         tools.prints_separator(message=conferencia_text, simples=True)
 
         shutil.move(complete_path, destination_path)
+
     except FileNotFoundError as e:
         raise FileNotFound(e)
 
