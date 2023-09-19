@@ -286,6 +286,11 @@ def get_args_from_command_line():
     return args
 
 
+def restart_application():
+    time.sleep(5)
+    os.execl(sys.executable, sys.executable, *sys.argv)
+
+
 def init_setup(type_of_module):
     prints_separator(message=f"Executando módulo {type_of_module}...")
     needs_restart = __check_for_updates()

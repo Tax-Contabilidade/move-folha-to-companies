@@ -1,11 +1,15 @@
 import locale
 import os
-import sys
 
 from data import tools
 from data.exceptions import CompanyNotFound, FileNotFound
 from files.manage import generate_report_file, move_file
-from lib.settings import end_application, get_args_from_command_line, init_setup
+from lib.settings import (
+    end_application,
+    get_args_from_command_line,
+    init_setup,
+    restart_application,
+)
 
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 companies = tools.get_companies_list()
@@ -61,4 +65,5 @@ if __name__ == "__main__":
     )
 
     if needs_restart:
-        os.execl(sys.executable, sys.executable, *sys.argv)
+        tools.prints_separator(message="UPDATE DA APLICAÇÃO: Reiniciando Servidor...")
+        restart_application()
