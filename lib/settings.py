@@ -169,6 +169,8 @@ def __check_for_updates():
                 "O repositório local está atualizado com o remoto. Nenhuma ação é necessária."
             )
             time.sleep(2)
+
+            return False
         else:
             console(
                 "O repositório local não está atualizado com o remoto. Executando pull from origin"
@@ -191,6 +193,8 @@ def __check_for_updates():
                 )
             else:
                 console("Atualização concluída.")
+
+            return True
 
     except subprocess.CalledProcessError as e:
         time.sleep(2)
@@ -284,8 +288,14 @@ def get_args_from_command_line():
 
 def init_setup(type_of_module):
     prints_separator(message=f"Executando módulo {type_of_module}...")
-    __check_for_updates()
+    needs_restart = __check_for_updates()
+
+    if needs_restart:
+        return True
+
     __config_server_and_backup(type_of_module)
+
+    return False
 
 
 def end_application():

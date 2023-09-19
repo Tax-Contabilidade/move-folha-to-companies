@@ -1,5 +1,6 @@
 import locale
 import os
+import sys
 
 from data import tools
 from data.exceptions import CompanyNotFound, FileNotFound
@@ -38,7 +39,11 @@ def main(companies, success_list, error_list, modulo: tools.modulos, umount=True
 
 def execute_module(**kwargs):
     modulo = kwargs["modulo"]
-    init_setup(modulo)
+    needs_restart = init_setup(modulo)
+
+    if needs_restart:
+        return True
+
     ##--
     main(**kwargs)
 
@@ -47,19 +52,13 @@ if __name__ == "__main__":
     args = get_args_from_command_line()
     umount_flag = not args.no_umount
 
-    if args.adiant:
-        execute_module(
-            umount=umount_flag,
-            companies=companies,
-            success_list=companies_moved,
-            error_list=companies_not_found,
-            modulo=tools.modulos.ADIANTAMENTO_FOLHA,
-        )
-    else:
-        execute_module(
-            umount=umount_flag,
-            companies=companies,
-            success_list=companies_moved,
-            error_list=companies_not_found,
-            modulo=tools.modulos.FOLHA,
-        )
+    needs_restart = execute_module(
+        umount=umount_flag,
+        companies=companies,
+        success_list=companies_moved,
+        error_list=companies_not_found,
+        modulo=tools.modulos.ADIANTAMENTO_FOLHA if args.adiant else tools.modulos.FOLHA,
+    )
+
+    if needs_restart:
+        os.execl(sys.executable, sys.executable, *sys.argv)
