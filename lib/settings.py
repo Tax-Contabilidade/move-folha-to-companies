@@ -200,6 +200,10 @@ def __check_for_updates():
 def __mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
     prints_separator("MONTANDO O SERVIDOR LOCAL...")
     path_exists(local_path)
+
+    if IS_RUN_IN_SERVER:
+        return True
+
     if not __is_server_mounted(local_path):
         if not __is_tool_available("sshfs"):
             __install_sshfs()
@@ -232,6 +236,8 @@ def __mount_server(local_path=LOCAL_SERVER_PATH, password=SUDO_PASSWD):
 
 def __umount_server(directory_path=LOCAL_SERVER_PATH):
     prints_separator(message="DESMONTANDO O SERVIDOR LOCAL...")
+    if IS_RUN_IN_SERVER:
+        return True
     try:
         subprocess.run(["fusermount", "-u", directory_path], check=True, cwd=REPO_CWD)
         console(f"Diretório {directory_path} desmontado com sucesso.")
