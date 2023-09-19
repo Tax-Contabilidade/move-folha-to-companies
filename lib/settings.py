@@ -287,7 +287,9 @@ def get_args_from_command_line():
 
 
 def restart_application():
-    time.sleep(5)
+    time.sleep(1)
+    prints_separator(message="REINICIANDO APLICATIVO...", simples=True)
+    time.sleep(3)
     os.execl(sys.executable, sys.executable, *sys.argv)
 
 
