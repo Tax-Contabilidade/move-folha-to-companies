@@ -9,6 +9,17 @@ period_suffix = "/PESSOAL/01 - FOLHAS E MOVIMENTACOES/2023/09 - setembro"
 root_dir = f"{LOCAL_SERVER_PATH}/EMPRESAS/$EMP$/{period_suffix}"
 conferencia_dir = CONFERENCIA_PATH
 
+
+def copy_file(file, empresa, complete_path=None):
+    origin_path = complete_path if complete_path else os.path.join(emp_folder, file)
+
+    if file.endswith(".pdf"):
+        shutil.copy(origin_path, os.path.join(conferencia_folder, file))
+        print(
+            "\nCopiando: {} \nde {} \npara {}".format(file, empresa, conferencia_folder)
+        )
+
+
 for line in emp_file:
     emp_folder = root_dir.replace("$EMP$", line.strip())
     conferencia_folder = conferencia_dir.replace("MODULO", "FOLHA").replace(
@@ -18,15 +29,11 @@ for line in emp_file:
     path_exists(conferencia_folder)
 
     for file in os.listdir(emp_folder):
-        if file.endswith(".pdf"):
-            shutil.copy(
-                os.path.join(emp_folder, file), os.path.join(conferencia_folder, file)
-            )
-            print(
-                "Copiando: {} \nde {} \npara {}".format(
-                    file, line.strip(), conferencia_folder
-                )
-            )
-
+        if file == "DCTFWeb":
+            inss_folder = os.path.join(emp_folder, file)
+            for inss_file in os.listdir(inss_folder):
+                copy_file(inss_file, complete_path=os.path.join(inss_folder, inss_file))
+        else:
+            copy_file(file, empresa=line.strip())
 
 emp_file.close()
