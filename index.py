@@ -43,7 +43,7 @@ def main(companies, success_list, error_list, modulo: tools.modulos, umount=True
 
 def execute_module(**kwargs):
     modulo = kwargs["modulo"]
-    needs_restart = init_setup(modulo)
+    needs_restart = init_setup(modulo, kwargs["clean_conferencia"])
 
     if needs_restart:
         return True
@@ -62,6 +62,7 @@ if __name__ == "__main__":
         success_list=companies_moved,
         error_list=companies_not_found,
         modulo=tools.modulos.ADIANTAMENTO_FOLHA if args.adiant else tools.modulos.FOLHA,
+        clean_conferencia=args.clean,
     )
 
     if needs_restart:

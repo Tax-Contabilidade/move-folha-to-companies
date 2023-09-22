@@ -5,8 +5,8 @@ import sys
 import time
 from datetime import timedelta
 
-from data.tools import console, path_exists, prints_separator
-from files.manage import backup_files
+from data import console, prints_separator
+from files.manage import backup_files, path_exists
 from lib.consts import *
 
 
@@ -253,9 +253,9 @@ def __umount_server(directory_path=LOCAL_SERVER_PATH):
         console(f"Diretório {directory_path} desmontado com sucesso.")
 
 
-def __config_server_and_backup(type_of_module):
+def __config_server_and_backup(type_of_module, clean_conferencia):
     __mount_server()
-    backup_files(type_of_module)
+    backup_files(type_of_module, clean_conferencia)
 
 
 def get_args_from_command_line():
@@ -266,13 +266,16 @@ def get_args_from_command_line():
     # Adicione os argumentos que você deseja aceitar
     parser.add_argument("-f", "--folha", action="store_true", help="Processar a folha")
     parser.add_argument(
+        "-a", "--adiant", action="store_true", help="Processar o adiantamento"
+    )
+    parser.add_argument(
         "-u",
         "--no-umount",
         action="store_true",
         help="Não desmonta o servidor após conclusão",
     )
     parser.add_argument(
-        "-a", "--adiant", action="store_true", help="Processar o adiantamento"
+        "-c", "--clean", action="store_true", help="Limpar pasta de conferência"
     )
 
     args = parser.parse_args()
@@ -293,14 +296,14 @@ def restart_application():
     os.execl(sys.executable, sys.executable, *sys.argv)
 
 
-def init_setup(type_of_module):
+def init_setup(type_of_module, clean_conferencia):
     prints_separator(message=f"Executando módulo {type_of_module}...")
     needs_restart = __check_for_updates()
 
     if needs_restart:
         return True
 
-    __config_server_and_backup(type_of_module)
+    __config_server_and_backup(type_of_module, clean_conferencia)
 
     return False
 

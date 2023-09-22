@@ -127,14 +127,6 @@ def generate_new_file_suffix(destination_path, file_name, module):
     return os.path.join(destination_path, new_file_name)
 
 
-def path_exists(path):
-    # Verificar se o diretório existe
-    if not os.path.exists(path):
-        # Se não existir, criar o diretório
-        os.makedirs(path)
-        console(f'Diretório "{path}" criado com sucesso.\n')
-
-
 def get_companies_list(
     excel_file_path="{}".format(
         os.path.join(Path(__file__).parent, "api/empresas.xlsx")

@@ -22,7 +22,7 @@ def __get_conferencia_path(module, company_name=None):
 
 def __remove_files_from_conferencia_dir(destiny):
     # Verifica se o diretório existe
-    tools.path_exists(destiny)
+    path_exists(destiny)
     # Lista todos os arquivos no diretório
     arquivos_no_diretorio = os.listdir(destiny)
 
@@ -48,7 +48,7 @@ def __send_to_conferencia(origin, company_name, file_name, module):
         conferencia_dir, file_name, module
     )
 
-    tools.path_exists(conferencia_dir)
+    path_exists(conferencia_dir)
     shutil.copy(origin, new_conferencia_dir)
 
     return f"Arquivo {conferencia_dir} enviado para CONFERÊNCIA"
@@ -80,8 +80,8 @@ def move_file(company_name, file_name, complete_path, module):
     return dicionario_export
 
 
-def backup_files(module):
-    tools.path_exists(BACKUP_PATH)
+def backup_files(module, clean_conferencia=False):
+    path_exists(BACKUP_PATH)
     conferencia_dir = __get_conferencia_path(module)
 
     tools.prints_separator(message=f"EFETUANDO BACKUP - {module}")
@@ -102,10 +102,18 @@ def backup_files(module):
             tools.prints_separator(
                 message=f"Copiado arquivo {origin} para {dest}", simples=True
             )
+    if clean_conferencia:
+        tools.prints_separator(message=f"LIMPANDO PASTA DE CONFERÊNCIA - {module}")
+        ##CONFERENCIA FUNCTION
+        __remove_files_from_conferencia_dir(conferencia_dir)
 
-    tools.prints_separator(message=f"LIMPANDO PASTA DE CONFERÊNCIA - {module}")
-    ##CONFERENCIA FUNCTION
-    __remove_files_from_conferencia_dir(conferencia_dir)
+
+def path_exists(path):
+    # Verificar se o diretório existe
+    if not os.path.exists(path):
+        # Se não existir, criar o diretório
+        os.makedirs(path)
+        tools.console(f'Diretório "{path}" criado com sucesso.\n')
 
 
 def generate_report_file(
