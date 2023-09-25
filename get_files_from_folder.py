@@ -32,8 +32,12 @@ for line in emp_file:
         if file == "DCTFWeb":
             inss_folder = os.path.join(emp_folder, file)
             for inss_file in os.listdir(inss_folder):
-                copy_file(inss_file, complete_path=os.path.join(inss_folder, inss_file))
-        else:
-            copy_file(file, empresa=line.strip())
+                copy_file(
+                    inss_file,
+                    line.strip(),
+                    complete_path=os.path.join(inss_folder, inss_file),
+                )
+        # else:
+        #     copy_file(file, empresa=line.strip())
 
 emp_file.close()

@@ -44,6 +44,7 @@ def main(companies, success_list, error_list, modulo: tools.modulos, umount=True
 def execute_module(**kwargs):
     modulo = kwargs["modulo"]
     needs_restart = init_setup(modulo, kwargs["clean_conferencia"])
+    del kwargs["clean_conferencia"]
 
     if needs_restart:
         return True

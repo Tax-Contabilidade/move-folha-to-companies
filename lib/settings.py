@@ -5,7 +5,7 @@ import sys
 import time
 from datetime import timedelta
 
-from data import console, prints_separator
+from data.tools import console, prints_separator
 from files.manage import backup_files, path_exists
 from lib.consts import *
 
