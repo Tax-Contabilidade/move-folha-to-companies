@@ -37,7 +37,7 @@ for line in emp_file:
                     line.strip(),
                     complete_path=os.path.join(inss_folder, inss_file),
                 )
-        # else:
-        #     copy_file(file, empresa=line.strip())
+        else:
+            copy_file(file, empresa=line.strip())
 
 emp_file.close()
