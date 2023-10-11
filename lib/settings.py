@@ -275,7 +275,7 @@ def get_args_from_command_line():
         help="Não desmonta o servidor após conclusão",
     )
     parser.add_argument(
-        "-c", "--clean", action="store_true", help="Limpar pasta de conferência"
+        "-c", "--clear", action="store_true", help="Limpar pasta de conferência"
     )
 
     args = parser.parse_args()

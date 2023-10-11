@@ -63,7 +63,7 @@ if __name__ == "__main__":
         success_list=companies_moved,
         error_list=companies_not_found,
         modulo=tools.modulos.ADIANTAMENTO_FOLHA if args.adiant else tools.modulos.FOLHA,
-        clean_conferencia=args.clean,
+        clean_conferencia=args.clear,
     )
 
     if needs_restart:

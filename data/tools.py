@@ -2,6 +2,7 @@ import enum
 import os
 import re
 import textwrap
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Union
@@ -20,7 +21,7 @@ class modulos(enum.Enum):
 
 
 def __get_dataframe(excel_file_path):
-    df = pd.read_excel(excel_file_path)
+    df = pd.read_excel(excel_file_path, dtype=str)
     df.drop(
         columns=[
             "Procedimento",
@@ -55,7 +56,7 @@ def __get_dataframe(excel_file_path):
         inplace=True,
     )
     df.reset_index(inplace=True, drop=True)
-    df = df.astype(str)
+    # df = df.astype(str)
     # df["Cod"] = df["Cod"].apply(lambda x: re.sub("0", "", x))
     df["Cod"] = df["Cod"].apply(lambda x: x.lstrip("0"))
 
@@ -74,11 +75,21 @@ def __extract_cnpj_from_filename(df, filename):
     match = re.search(cnpj_pattern, filename)
     if match:
         cnpj = match.group()
-        filtered_line = df.loc[df["cnpj"] == cnpj.lstrip("0"), "cod"].values
+        # print(df.info())
+        # for cnpj_df in df["cnpj"].values:
+        #     print(cnpj, cnpj_df)
+        #     if cnpj in cnpj_df:
+        #         time.sleep(50)
+        filtered_line = df.loc[df["cnpj"] == cnpj, "cod"].values
+        # filtered_line = df.loc[df["cnpj"].isin([cnpj]), "cod"].values
         if len(filtered_line) > 0:
             return filtered_line[0]
+        elif len(filtered_line) <= 0:
+            raise CompanyNotFound("Company not found by CNPJ: {}".format(cnpj))
     else:
-        raise CompanyNotFound("Company not found")
+        raise CompanyNotFound(
+            f"CNPJ ou COD da empresa não foi encontrado: \nFILENAME:{filename}"
+        )
 
 
 def __parse_date(date_str):
@@ -103,6 +114,10 @@ def __rename_file(filename, module):
                 match = re.search(r"(\d{6})", filename)
                 if match:
                     return rename_with_date(template, match.group(1))
+            elif "Folha" in patterns_list:
+                match = re.search(r"(\d{4})", filename)
+                if match:
+                    return template.replace("{EST}", match.group(1))
             else:
                 return template
 
@@ -145,10 +160,10 @@ def get_company_cod_by_filename(df, company_name: str):
 
     if cod_found:
         return cod_found.group(1)
-    elif company_name[:13] == "GuiaPagamento":
+    elif any(doc_type in company_name for doc_type in ["GuiaPagamento", "GRF", "grf"]):
         return __extract_cnpj_from_filename(df, company_name)
 
-    raise Exception("Pattern not found on this file")
+    raise Exception(f"Pattern not found on this file\n FILENAME: {company_name}")
 
 
 def get_company_name_by_cod(df, cod: Union[str, int]):
@@ -162,6 +177,7 @@ def get_company_name_by_cod(df, cod: Union[str, int]):
 
 def generate_folder_path(company_name, company_file, specific_month=False, month=None):
     is_guia_pagamento = "GuiaPagamento" in company_file
+    is_grf = any(doc_type in company_file for doc_type in ["Grf", "GRF"])
     if specific_month:
         if not month:
             raise Exception("Month not informed")
@@ -187,8 +203,19 @@ def generate_folder_path(company_name, company_file, specific_month=False, month
             company_name,
             consts.DESTINATION_SUFIX_PATH,
         )
+    elif is_grf:
+        pattern = "NÃO TEM"
+        output_path = "{}/{}/{}".format(
+            consts.COMPANIES_PATH,
+            company_name,
+            consts.DESTINATION_SUFIX_PATH,
+        )
     else:
-        pattern = r"(\d{2})(\d{4}).pdf"
+        pattern = (
+            r"(\d{2})(\d{4}).pdf"
+            if not "DAE" in company_file
+            else r"(\d{2})(\d{4}).PDF"
+        )
         output_path = "{}/{}/{}".format(
             consts.COMPANIES_PATH,
             company_name,
@@ -201,6 +228,9 @@ def generate_folder_path(company_name, company_file, specific_month=False, month
         year = int(match.group(2))
         date = datetime(year, month, 1).strftime("%Y/%m - %B")
     else:
-        raise Exception("Pattern not found on this file")
+        if not is_grf:
+            raise Exception("Pattern not found on this file")
+
+        date = consts.CURRENT_DATE_SUFIX_PATH
 
     return output_path.replace("{DATE}", date)

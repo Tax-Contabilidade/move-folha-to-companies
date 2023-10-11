@@ -1,7 +1,10 @@
+import locale
 import os
 import socket
 from datetime import datetime
 from pathlib import Path
+
+locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 SUDO_PASSWD = "dev@123"
 REPO_CWD = Path(__file__).parent.parent
