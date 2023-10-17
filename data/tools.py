@@ -126,7 +126,10 @@ def __rename_file(filename, module):
 
 def console(message, tab=True):
     indented_message = textwrap.indent(message, "    ") if tab else message
-    print("{}{}\n".format("\n" if tab else "", indented_message))
+    message = "{}{}\n".format("\n" if tab else "", indented_message)
+
+    print(message)
+    return message
 
 
 def prints_separator(message=None, simples=False):

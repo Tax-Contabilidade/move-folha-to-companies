@@ -1,10 +1,12 @@
 import locale
 import os
+import time
 
 from data import tools
 from data.exceptions import CompanyNotFound, FileNotFound
 from files.manage import generate_report_file, move_file
 from lib.settings import (
+    check_is_root,
     end_application,
     get_args_from_command_line,
     init_setup,
@@ -42,6 +44,9 @@ def main(companies, success_list, error_list, modulo: tools.modulos, umount=True
 
 
 def execute_module(**kwargs):
+    ##Verifica se tem privilégios root
+    check_is_root()
+
     modulo = kwargs["modulo"]
     needs_restart = init_setup(modulo, kwargs["clean_conferencia"])
     del kwargs["clean_conferencia"]

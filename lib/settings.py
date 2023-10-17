@@ -253,6 +253,14 @@ def __umount_server(directory_path=LOCAL_SERVER_PATH):
         console(f"Diretório {directory_path} desmontado com sucesso.")
 
 
+def check_is_root():
+    ...
+    # if os.geteuid() != 0:
+    #     console("Este script requer privilégios de superusuário (root).")
+    #     console("Por favor, execute o script como root.")
+    #     sys.exit(1)
+
+
 def __config_server_and_backup(type_of_module, clean_conferencia):
     __mount_server()
     backup_files(type_of_module, clean_conferencia)
@@ -298,6 +306,7 @@ def restart_application():
 
 def init_setup(type_of_module, clean_conferencia):
     prints_separator(message=f"Executando módulo {type_of_module}...")
+
     needs_restart = __check_for_updates()
 
     if needs_restart:
