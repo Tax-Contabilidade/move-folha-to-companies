@@ -11,7 +11,7 @@ import pandas as pd
 
 import lib.consts as consts
 from data import tools
-from data.exceptions import CompanyNotFound
+from data.exceptions import CompanyNotFound, FileNotFound
 from lib.patterns import ADIANTAMENTO_FOLHA_PATTERN, FOLHA_PATTERN
 
 
@@ -114,10 +114,14 @@ def __rename_file(filename, module):
                 match = re.search(r"(\d{6})", filename)
                 if match:
                     return rename_with_date(template, match.group(1))
-            elif "Folha" in patterns_list:
+            elif any(word in filename for word in ["folha", "freq"]):
                 match = re.search(r"(\d{4})", filename)
                 if match:
                     return template.replace("{EST}", match.group(1))
+                else:
+                    raise FileNotFound(
+                        f"Pattern not found on this file\n FILENAME: {filename}"
+                    )
             else:
                 return template
 

@@ -13,7 +13,8 @@ FOLHA_PATTERN = [
     (["DAE", "Dae"], "DAE - {date}.pdf"),
     (["GRF", "Grf"], "GRF - 0001.pdf"),
     (["Férias", "Ferias", "ferias"], "Programação de férias - 0001.pdf"),
-    (["Folha", "folha"], "Folha de Pagamento - 0001.pdf"),
+    (["Folha", "folha"], "Folha de Pagamento - {EST}.pdf"),
+    (["Freq", "freq"], "Controle de Frequência - {EST}.pdf"),
     (["Recibo", "recibo"], "Recibo de Pagamento - 0001.pdf"),
     (["GuiaPagamento", "Guia de Pagamento"], "Guia de Pagamento - 0001.pdf"),
 ]
