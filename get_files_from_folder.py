@@ -1,11 +1,15 @@
 import os
 import shutil
+from datetime import datetime
 
 from files.manage import path_exists
 from lib.consts import CONFERENCIA_PATH, LOCAL_SERVER_PATH
 
 emp_file = open("empresas.txt", "r")
-period_suffix = "/PESSOAL/01 - FOLHAS E MOVIMENTACOES/2023/09 - setembro"
+date = datetime.now()
+period_suffix = (
+    f"/PESSOAL/01 - FOLHAS E MOVIMENTACOES/{date.year}/{date.strftime('%m - %B')}"
+)
 root_dir = f"{LOCAL_SERVER_PATH}/EMPRESAS/$EMP$/{period_suffix}"
 conferencia_dir = CONFERENCIA_PATH
 
