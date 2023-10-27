@@ -1,6 +1,5 @@
 import locale
 import os
-import time
 
 from data import tools
 from data.exceptions import CompanyNotFound, FileNotFound

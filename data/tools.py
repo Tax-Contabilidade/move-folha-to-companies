@@ -71,6 +71,10 @@ def __get_companies_list(df):
 
 
 def __extract_cnpj_from_filename(df, filename):
+    # CASO EXCEPCIONAL DO EXCELENTÍSSIMO DR RODRIGO
+    if "512150123302" in filename:
+        return 195
+
     cnpj_pattern = r"\d{14}"
     match = re.search(cnpj_pattern, filename)
     if match:
