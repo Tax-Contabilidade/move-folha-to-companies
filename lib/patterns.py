@@ -6,6 +6,7 @@ ADIANTAMENTO_FOLHA_PATTERN = [
     (["Recibo"], "Recibo de Adiantamento - 0001.pdf"),
     (["GuiaPagamento", "Guia de Pagamento"], "Guia de Pagamento - 0001.pdf"),
     (["GRF", "Grf"], "GRF - 0001.pdf"),
+    (["Ad13", "ad13"], "Adiantamento 13° - {EST}.pdf"),
 ]
 
 FOLHA_PATTERN = [

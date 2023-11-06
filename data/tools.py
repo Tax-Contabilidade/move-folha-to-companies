@@ -118,7 +118,7 @@ def __rename_file(filename, module):
                 match = re.search(r"(\d{6})", filename)
                 if match:
                     return rename_with_date(template, match.group(1))
-            elif any(word in filename for word in ["folha", "freq"]):
+            elif any(word in filename.lower() for word in ["folha", "freq", "ad13"]):
                 match = re.search(r"(\d{4})", filename)
                 if match:
                     return template.replace("{EST}", match.group(1))

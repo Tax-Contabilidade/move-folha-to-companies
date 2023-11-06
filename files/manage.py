@@ -71,7 +71,7 @@ def move_file(company_name, file_name, complete_path, module):
         # Move o arquivo
         shutil.move(complete_path, destination_path)
         # Atualiza o dono do arquivo
-        os.system(f"chown -R dev {destination_path}")
+        os.system(f"chown -R dev '{destination_path}'")
 
     except FileNotFoundError as e:
         raise FileNotFound(e)
