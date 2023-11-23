@@ -71,7 +71,7 @@ def move_file(company_name, file_name, complete_path, module):
         # Move o arquivo
         shutil.move(complete_path, destination_path)
         # Atualiza o dono do arquivo
-        os.system(f"chown -R dev '{destination_path}'")
+        resolve_permissions_conflicts(destination_path, recursive=False)
 
     except FileNotFoundError as e:
         raise FileNotFound(e)
@@ -116,6 +116,18 @@ def path_exists(path):
         # Se não existir, criar o diretório
         os.makedirs(path)
         tools.console(f'Diretório "{path}" criado com sucesso.\n')
+
+
+def resolve_permissions_conflicts(conferencia_folder, recursive=True):
+    if not recursive:
+        owner_command = "sudo chown dev:pessoal '{PATH}'"
+        permission_command = "sudo chmod 775 '{PATH}'"
+    else:
+        owner_command = "sudo chown -R dev:pessoal '{PATH}'"
+        permission_command = "sudo chmod -R 775 '{PATH}'"
+
+    os.system(owner_command.replace("{PATH}", conferencia_folder))
+    os.system(permission_command.replace("{PATH}", conferencia_folder))
 
 
 def generate_report_file(
